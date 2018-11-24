@@ -15,7 +15,7 @@ I will show the worldwide development of access to education over a certain peri
 #### Layout
 
 ##### Webpage
-The visualizations will be presented on a webpage. This website will hold both text and visualizations like world maps and graphs, probably line graphs showing a development throughout a certain time period. Visual sketches can be found in the `doc` folder. 
+The visualisations will be presented on a webpage. This website will hold both text and visualisations like world maps and graphs, probably line graphs showing a development throughout a certain time period. Visual sketches can be found in the `doc` folder. 
 
 
 ##### Map 1 (MVP)
@@ -50,3 +50,28 @@ Hopefully, I can implement the same interactive features as used in Map 1.
 
 ##### Graph 2 
 If indeed different countries: hovering over one line will push the other lines to the background (lighter color).
+
+
+### Data sources
+http://data.uis.unesco.org/index.aspx?queryid=166&lang=en (literacy rate).  
+
+
+### External components
+
+
+### Similar visualisations
+
+
+### Hardest parts
+
+
+
+
+
+
+
+
+
+
+
+
