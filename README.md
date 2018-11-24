@@ -56,13 +56,16 @@ If indeed different countries: hovering over one line will push the other lines 
 http://data.uis.unesco.org/index.aspx?queryid=166&lang=en (literacy rate).  
 
 
-### External components
+### External components  
+D3 is needed for the graphs, and I will probably work with databases, so SQLite might be a useful tool for that purpose. 
 
 
 ### Similar visualisations
-
+https://ourworldindata.org/edu-quality-key-facts  
+Here, education quality is measured and plotted against several factors, such as GDP and mimum/maximum achievement. Some of the visualisations are accompanied by a bar the user can use to see the same data from different years; they can even press a play button to see the entire development between 1970 and 2015. I hope to implement a similar feature. However, at the moment, I do not yet have the know-how to do so; I will have to dive deeper into this. 
 
 ### Hardest parts
+The hardest part for me will be to implement the interactivity; I want the user to be able to both select a country and see developments over time. To do so, I will need to use information from different datasets and make sure the correct data is selected and that the interactive features do not interfere with each other. 
 
 
 
