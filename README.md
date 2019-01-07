@@ -53,7 +53,8 @@ If indeed different countries: hovering over one line will push the other lines 
 
 
 ### Data sources
-http://data.uis.unesco.org/index.aspx?queryid=166&lang=en (literacy rate).  
+The worldwide literacy rate throughout the years can be extracted from this site: http://data.uis.unesco.org/index.aspx?queryid=166&lang=en/. To use this data, I will not have to transform any data, except to maybe another type of file which might be easier to use. 
+This site contains a lot of data used in Lee and Lee (2016): http://www.barrolee.com/Lee_Lee_LRdata_dn.html/. The datasets span from the late 1800s to 2010, which might be very useful for my visualistation. 
 
 
 ### External components  
@@ -67,6 +68,8 @@ Here, education quality is measured and plotted against several factors, such as
 ### Hardest parts
 The hardest part for me will be to implement the interactivity; I want the user to be able to both select a country and see developments over time. To do so, I will need to use information from different datasets and make sure the correct data is selected and that the interactive features do not interfere with each other. 
 
+### Sources
+Lee and Lee (2016). Human capital in the long run. _Journal of Development Economics_, _122_(3), 147-169.
 
 
 
