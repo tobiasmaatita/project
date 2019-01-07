@@ -1,6 +1,6 @@
 # Project
 ## Proposal Tobias Maätita (10730109)
-
+The goal of my datavisualisation is to illustrate the inequal access to education throughout the world. To explore whether the inequality has reduced or increased over the last years, I will include the possibility to see the development within a certain timeframe. 
 
 ### Problem Statement
 Up until this day, access to education has never been equal. In some countries, even today, a large percentage of the population is still illiterate, whereas in other countries children can attend school free of charge. 
