@@ -58,7 +58,7 @@ This site contains a lot of data used in Lee and Lee (2016): http://www.barrolee
 
 
 ### External components  
-D3 is needed for the graphs, and I will probably work with databases, so SQLite might be a useful tool for that purpose. 
+D3 is needed for the graphs, and I will probably work with databases, so SQLite might be a useful tool for that purpose. Otherwise, maybe pandas might be more useful than SQLite.  
 
 
 ### Similar visualisations
