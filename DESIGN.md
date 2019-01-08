@@ -50,7 +50,7 @@ to scroll through the years. Also, hovering might maybe show the total years
 of education. Needed: world map and data on [worldwide education attainment](https://github.com/tobiasmaatita/project/blob/master/Data/education_attainment.csv);
 * completed education: primary, secondary or tertiary per country, shown after
 clicking on a country from the education attainment map. Needed: [worldwide education attainment](https://github.com/tobiasmaatita/project/blob/master/Data/education_attainment.csv).
-<img title = "diagram" src="doc/diagram.png" width="400" style="max-width:100%;">
+<img title = "diagram" src="doc/diagram.png" width="400">
 
 
 ## Functionality
