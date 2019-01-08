@@ -9,10 +9,29 @@ The resulting .json-file looks like such:
 ```
 "Australia": {
   "1870": {
-    "uneducated": 50.9, "primary": 49.0, "secondary": 0.1, "tertiary": 0.0, "years of education total": 1.72, "years education primary": 1.72, "years education secondary": 0.0, "years education tertiary": 0.0, "population in thousands": 932, "region": "Advanced Economies"
+    "uneducated": 50.9,
+    "primary": 49.0,
+    "secondary": 0.1,
+    "tertiary": 0.0,
+    "years of education total": 1.72,
+    "years education primary": 1.72,
+    "years education secondary": 0.0,
+    "years education tertiary": 0.0,
+    "population in thousands": 932,
+    "region": "Advanced Economies"
     },
+    
   "1875": {
-    "uneducated": 46.3, "primary": 53.6, "secondary": 0.1, "tertiary": 0.0, "years of education total": 1.86, "years education primary": 1.86, "years education secondary": 0.0, "years education tertiary": 0.0, "population in thousands": 1075, "region": "Advanced Economies"
+    "uneducated": 46.3,
+    "primary": 53.6,
+    "secondary": 0.1,
+    "tertiary": 0.0,
+    "years of education total": 1.86,
+    "years education primary": 1.86,
+    "years education secondary": 0.0,
+    "years education tertiary": 0.0,
+    "population in thousands": 1075,
+    "region": "Advanced Economies"
   }
 ```
 
