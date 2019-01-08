@@ -12,7 +12,7 @@ def input_read(input):
     """
 
     with open(input) as f:
-        reader = csv.DictReader(f, delimiter=';')
+        reader = csv.DictReader(f)
         fieldnames = reader.fieldnames
         data_dict = {str(key): [] for key in fieldnames}
 
@@ -23,6 +23,9 @@ def input_read(input):
                 else:
                     data_dict[key].append(row[key])
 
+    print(data_dict)
+    print()
+    print(fieldnames)
     return data_dict, fieldnames
 
 
@@ -78,5 +81,5 @@ def to_json(data_dict, fieldnames):
 if __name__ == "__main__":
     input_file = sys.argv[1] + ".csv"
     dict, fieldnames = input_read(input_file)
-    data = preprocess(dict)
-    to_json(data, fieldnames)
+    # data = preprocess(dict)
+    # to_json(data, fieldnames)
