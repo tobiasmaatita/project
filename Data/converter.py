@@ -56,7 +56,7 @@ def to_json(data_dict, fieldnames):
     Write the json file.
     """
 
-    with open('test.json', 'w') as f:
+    with open('education_attainment.json', 'w') as f:
 
         head = 'country'
         head_2 = 'year'
