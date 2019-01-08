@@ -59,15 +59,8 @@ def to_json(data_dict, fieldnames, json_file):
         json_dict = {str(key): {} for key in data_dict[head]}
 
         for index, country in enumerate(data_dict[head]):
-            if data_dict['Year'][index] == 2011:
-                for key in fieldnames[2:]:
-                    json_dict[country][key] = data_dict[key][index]
-            else:
-                for key in fieldnames[2:]:
-                    if key == 'Year':
-                        json_dict[country][key] = data_dict[key][index]
-                    else:
-                        json_dict[country][key] = 0
+            for key in fieldnames[2:]:
+                json_dict[country][key] = data_dict[key][index]
 
         f.write(json.dumps(json_dict))
 

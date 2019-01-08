@@ -50,12 +50,13 @@ to scroll through the years. Also, hovering might maybe show the total years
 of education. Needed: world map and data on [worldwide education attainment](https://github.com/tobiasmaatita/project/blob/master/Data/education_attainment.csv);
 * completed education: primary, secondary or tertiary per country, shown after
 clicking on a country from the education attainment map. Needed: [worldwide education attainment](https://github.com/tobiasmaatita/project/blob/master/Data/education_attainment.csv).
+<img title = "diagram" src="doc/diagram.png" width="150" style="max-width:100%;">
 
 
 ## Functionality
 The following D3 (v5) plugins are needed:
-* tooltip
-* worldmap
+* [tooltip](ttps://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.9.1/d3-tip.min.js)
+* [worldmap](http://d3js.org/topojson.v1.min.js)
 
 ## Sources
 * [worldwide literacy rate](http://data.uis.unesco.org/index.aspx?queryid=166&lang=en);
