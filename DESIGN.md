@@ -8,7 +8,7 @@ The data I will be using can be found inside the [data](https://github.com/tobia
 The resulting .json-file looks like such:
 ```
 "Australia": {
-  
+
   "1870": {
     "uneducated": 50.9,
     "primary": 49.0,
@@ -56,3 +56,8 @@ clicking on a country from the education attainment map. Needed: [worldwide educ
 The following D3 (v5) plugins are needed:
 * tooltip
 * worldmap
+
+## Sources
+* [worldwide literacy rate](http://data.uis.unesco.org/index.aspx?queryid=166&lang=en);
+* [literacy rate by country](https://ourworldindata.org/global-rise-of-education#the-evolution-of-education-outcomes);
+* [education attainment](http://www.barrolee.com/Lee_Lee_LRdata_dn.htm);
