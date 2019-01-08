@@ -8,6 +8,7 @@ The data I will be using can be found inside the [data](https://github.com/tobia
 The resulting .json-file looks like such:
 ```
 "Australia": {
+  
   "1870": {
     "uneducated": 50.9,
     "primary": 49.0,
@@ -20,7 +21,7 @@ The resulting .json-file looks like such:
     "population in thousands": 932,
     "region": "Advanced Economies"
     },
-    
+
   "1875": {
     "uneducated": 46.3,
     "primary": 53.6,
