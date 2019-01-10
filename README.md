@@ -1,5 +1,5 @@
 # Project
-https://tobiasmaatita.github.io/project/scripts/index.html
+
 ## Proposal Tobias Maätita (10730109)
 The goal of my datavisualisation is to illustrate the inequal access to education throughout the world. To explore whether the inequality has reduced or increased over the last years, I will include the possibility to see the development within a certain timeframe.
 
