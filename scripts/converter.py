@@ -34,12 +34,12 @@ def preprocess(data_dict):
     """
 
     # literacy_rate_by_country.csv:
-    float_keys = ['Literacy rate (%)']
-    int_keys = ['Year']
+    float_keys = ['Literate world population (people)', 'Illiterate world population (people)']
+    # int_keys = ['Year']
 
     # ints:
-    for key in int_keys:
-        data_dict[key] = [int(value) for value in data_dict[key]]
+    # for key in int_keys:
+    #     data_dict[key] = [int(value) for value in data_dict[key]]
 
     # floats:
     for key in float_keys:
@@ -55,12 +55,20 @@ def to_json(data_dict, fieldnames, json_file):
 
     with open(json_file, 'w') as f:
 
-        head = 'Entity'
-        json_dict = {str(key): {} for key in data_dict[head]}
+        head = 'Year'
+        first_json_dict = {str(key): {} for key in data_dict[head]}
 
         for index, country in enumerate(data_dict[head]):
-            for key in fieldnames[2:]:
-                json_dict[country][key] = data_dict[key][index]
+            for key in fieldnames[3:]:
+                first_json_dict[country][key] = data_dict[key][index]
+
+        json_dict = {str(key): 0 for key in data_dict[head]}
+        for year in first_json_dict:
+            tot = (first_json_dict[year]['Literate world population (people)']
+                  + first_json_dict[year]['Illiterate world population (people)'])
+            literate = round(first_json_dict[year]['Literate world population (people)'] /
+                        tot * 100, 2)
+            json_dict[year] = literate
 
         f.write(json.dumps(json_dict))
 
