@@ -124,16 +124,87 @@ function main(){
                  .attr('class', 'subsection')
                     .append('a')
                     .attr('href', '#figureThree')
-                    .text('Figure 3: Education attainment 1970-2010');
+                    .text('Figure 3: Education attainment, 1970-2010');
   content.append('div')
          .attr('class', 'figure')
          .attr('id', 'slider')
+            .append('div')
+            .attr('class', 'row-align-items-center')
+                .append('div')
+                .attr('class', 'col-sm-2')
+                    .append('p')
+                    .attr('id', 'value-time');
+  content.select('.row-align-items-center')
+         .append('div')
+         .attr('class', 'col-sm')
+            .append('div')
+            .attr('id', 'slider-time');
 
   content.append('div')
          .attr('class', 'text')
          .attr('id', 'attainmentExplain')
             .append('p')
-            .text('Uitleg over de figuur hierboven.')
+            .text('Uitleg over de figuren hierboven en hieronder.');
+
+  content.append('div')
+         .attr('class', 'figure')
+         .attr('id', 'figureFour')
+         .text('hier komt figuur 4');
+  tableOfContents.select('#contents')
+                 .append('li')
+                 .attr('class', 'subsection')
+                    .append('a')
+                    .attr('href', '#figureFour')
+                    .text('Figure 4: Types of education');
+
+  content.append('div')
+         .attr('class', 'text')
+         .attr('id', 'sources')
+            .append('h4')
+            .text('Sources');
+  tableOfContents.select('#contents')
+                 .append('li')
+                 .attr('class', 'section')
+                    .append('a')
+                    .attr('href', '#sources')
+                    .text('Sources')
+
+  content.select('#sources')
+         .append('ul')
+         .attr('id', 'sourcesList')
+            .append('li').text('source 1');
+  content.select('#sourcesList')
+         .append('li').text('source 2');
+
+
+  var dataTime = d5.range(0, 10).map(function(d) {
+      return new Date(1995 + d, 10, 3);
+    });
+
+    var sliderTime = d5
+      .sliderBottom()
+      .min(d5.min(dataTime))
+      .max(d5.max(dataTime))
+      .step(1000 * 60 * 60 * 24 * 365)
+      .width(300)
+      .tickFormat(d5.timeFormat('%Y'))
+      .tickValues(dataTime)
+      .default(new Date(1998, 10, 3))
+      .on('onchange', val => {
+        d5.select('p#value-time').text(d5.timeFormat('%Y')(val));
+      });
+
+    var gTime = d5
+      .select('div#slider-time')
+      .append('svg')
+      .attr('width', 500)
+      .attr('height', 100)
+      .append('g')
+      .attr('transform', 'translate(30,30)');
+
+    gTime.call(sliderTime);
+
+    d5.select('p#value-time').text(d5.timeFormat('%Y')(sliderTime.value()));
 
 
 
