@@ -182,3 +182,8 @@ li a
   position: relative;
   margin-top: 15px;
 }
+
+#slider-time
+{
+  border: 1px solid purple;
+}

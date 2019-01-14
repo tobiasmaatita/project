@@ -1,5 +1,204 @@
 function main(){
 
+  d3Stuff();
+
+  var margin = {
+    top: 30,
+    left: 60,
+    right: 30,
+    bottom: 50,
+    title: 45,
+    axisText: 30
+  },
+      widths = {
+    svgOne: 600,
+    svgTwo: 100,
+    svgThree: 100,
+    svgFour: 100
+  },
+      heights = {
+    svgOne: 400,
+    svgTwo: 100,
+    svgThree: 100,
+    svgFour: 100
+  };
+  var educationAttainment = '../data/education_attainment.json',
+      literacyCountry = '../data/literacy_rate_by_country.json';
+      worldLiteracyData = '../data/literate_and_illiterate_world_population.json';
+  var request = [d5.json(educationAttainment), d5.json(literacyCountry),
+                 d5.json(worldLiteracyData)];
+
+  Promise.all(request).then(function(response) {
+    var dataAttainment = response[0],
+        dataLiteracyCountry = response[1],
+        dataLiteracyWorld = response[2];
+    var allCountriesAttainment = Object.keys(dataAttainment),
+        allCountriesWorldLiteracy = Object.keys(dataLiteracyCountry),
+        yearsLiteracyWorld = Object.keys(dataLiteracyWorld);
+
+    // literacy map
+    var map = new Datamap({
+      scope: 'world',
+      element: document.getElementById('figureTwo'),
+      projection: 'mercator',
+      height: 600,
+      // data: dataLiteracyCountry,
+      geographyConfig: {
+        highlightBorderColor: 'yellow',
+        popupTemplate: function(geography, dataLiteracyCountry) {
+
+          console.log(geography)
+
+          return '<div class="hoverinfo">' + data.Year
+        }
+      }
+
+    });
+
+    // literacy line
+    linechart(dataLiteracyWorld, margin, widths.svgOne, heights.svgOne);
+
+    // attainment map
+    var map = new Datamap({
+      scope: 'world',
+      element: document.getElementById('figureThree'),
+      projection: 'mercator',
+      height: 600
+    });
+    slider(dataAttainment);
+
+  // end promise
+  });
+// end main function
+};
+
+function linechart(data_dict, margin, width, height){
+
+  var years = Object.keys(data_dict);
+  for (var i = 0; i < years.length; i++) {
+    years[i] = Number(years[i])
+  };
+  var lineWorld = d5.select('#figureOne')
+                    .append('svg')
+                    .attr('class', 'linechart')
+                    .attr('id', 'worldLiteracy')
+                    .attr('height', height)
+                    .attr('width', width)
+                    .attr('stroke', 'black');
+
+  var xScaleLine = d5.scaleLinear()
+                     .domain([d5.min(years), d5.max(years)])
+                     .range([margin.left, width - margin.right]),
+      yScaleLine = d5.scaleLinear()
+                     .domain([0, 100])
+                     .range([height - margin.bottom, margin.top]);
+
+  var line = d5.line()
+               .x(function(d, i){
+                 return xScaleLine(years[i])
+               })
+               .y(function(d){
+                 return yScaleLine(d.y)
+               })
+               .curve(d5.curveMonotoneX);
+
+  var dataset = d5.range(years.length).map(function(d, i) { return {"y": data_dict[years[i]]} })
+
+  var xAxisLine = d5.axisBottom()
+                    .scale(xScaleLine)
+      yAxisLine = d5.axisLeft()
+                    .scale(yScaleLine);
+
+  lineWorld.append('g')
+           .attr('class', 'xAxis')
+           .attr('id', 'xLine')
+           .attr('transform', 'translate(0,' + (height - margin.bottom) + ')')
+           .call(xAxisLine);
+  lineWorld.append('g')
+           .attr('class', 'yAxis')
+           .attr('id', 'yLine')
+           .attr('transform', 'translate(' + margin.left + ', 0)')
+           .call(yAxisLine);
+
+  console.log(xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
+              + xScaleLine.domain()[0]));
+
+  lineWorld.append('text')
+           .attr('class', 'figTitle')
+           .attr('id', 'lineTitle')
+           .attr('text-anchor', 'middle')
+           .attr('y', margin.top - 10)
+           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
+                                  + xScaleLine.domain()[0]))
+           .text('Worldwide literacy rate, 1800-2014')
+
+  var path = lineWorld.append('path')
+                      .datum(dataset)
+                      .attr('class', 'line')
+                      .attr('id', 'lineWorld')
+                      .attr('d', line)
+
+  var totalLength = path.node().getTotalLength();
+  path
+   .attr("stroke-dasharray", totalLength + " " + totalLength)
+   .attr("stroke-dashoffset", totalLength)
+   .transition()
+     .duration(2000)
+     .attr("stroke-dashoffset", 0);
+
+
+// end linechart function
+};
+
+function slider(data_dict) {
+
+  var years = Object.keys(data_dict['Australia'])
+  for (var i = 0; i < years.length; i++) {
+    years[i] = Number(years[i])
+  }
+
+  // var dataTime = d5.range(years.length).map(function(d) {
+  //     return new Date(years[d], 1,1);
+  //   });
+  var sliderTime = d5
+    .sliderBottom()
+    // .min(d5.min(dataTime))
+    // .max(d5.max(dataTime))
+    .min(d5.min(years))
+    .max(d5.max(years))
+    // .step(1000 * 60 * 60 * 24 * 365 * 5)
+    .step(5)
+    .width(800)
+    .tickValues(years)
+    // .tickFormat(d5.timeFormat('%Y'))
+    // .tickValues(years)
+    // .default(new Date(d5.min(dataTime)))
+    .default(d5.min(years))
+    .on('onchange', function(val) {
+      //val => {
+      // d5.select('p#value-time').text(d5.timeFormat('%Y')(val));
+      updateMap(data_dict, value);
+      d5.select('p#value-time').text(val)
+    });
+
+    var gTime = d5
+      .select('div#slider-time')
+      .append('svg')
+      .attr('width', 847)
+      .attr('height', 100)
+      .append('g')
+      .attr('transform', 'translate(15,30)');
+
+    gTime.call(sliderTime);
+    d5.select('p#value-time').text((sliderTime.value()));
+};
+
+function updateMap(data_dict, year) {
+  return True
+};
+
+function d3Stuff() {
+
   var wrapper = d5.select('.wrapper');
   wrapper.append('div')
          .attr('class', 'text')
@@ -176,169 +375,6 @@ function main(){
   content.select('#sourcesList')
          .append('li').text('source 2');
 
-
-  var dataTime = d5.range(0, 10).map(function(d) {
-      return new Date(1995 + d, 10, 3);
-    });
-
-    var sliderTime = d5
-      .sliderBottom()
-      .min(d5.min(dataTime))
-      .max(d5.max(dataTime))
-      .step(1000 * 60 * 60 * 24 * 365)
-      .width(300)
-      .tickFormat(d5.timeFormat('%Y'))
-      .tickValues(dataTime)
-      .default(new Date(1998, 10, 3))
-      .on('onchange', val => {
-        d5.select('p#value-time').text(d5.timeFormat('%Y')(val));
-      });
-
-    var gTime = d5
-      .select('div#slider-time')
-      .append('svg')
-      .attr('width', 500)
-      .attr('height', 100)
-      .append('g')
-      .attr('transform', 'translate(30,30)');
-
-    gTime.call(sliderTime);
-
-    d5.select('p#value-time').text(d5.timeFormat('%Y')(sliderTime.value()));
-
-
-
-  var margin = {
-    top: 30,
-    left: 60,
-    right: 30,
-    bottom: 50,
-    title: 45,
-    axisText: 30
-  },
-      widths = {
-    svgOne: 600,
-    svgTwo: 100,
-    svgThree: 100,
-    svgFour: 100
-  },
-      heights = {
-    svgOne: 400,
-    svgTwo: 100,
-    svgThree: 100,
-    svgFour: 100
-  };
-  var educationAttainment = '../data/education_attainment.json',
-      literacyCountry = '../data/literacy_rate_by_country.json';
-      worldLiteracyData = '../data/literate_and_illiterate_world_population.json';
-  var request = [d5.json(educationAttainment), d5.json(literacyCountry),
-                 d5.json(worldLiteracyData)];
-
-  Promise.all(request).then(function(response) {
-    var dataAttainment = response[0],
-        dataLiteracyCountry = response[1],
-        dataLiteracyWorld = response[2];
-    var allCountriesAttainment = Object.keys(dataAttainment),
-        allCountriesWorldLiteracy = Object.keys(dataLiteracyCountry),
-        yearsLiteracyWorld = Object.keys(dataLiteracyWorld);
-
-    var map = new Datamap({
-      scope: 'world',
-      element: document.getElementById('figureTwo'),
-      projection: 'mercator',
-      height: 600
-    });
-
-    linechart(dataLiteracyWorld, margin, widths.svgOne, heights.svgOne);
-
-    var map = new Datamap({
-      scope: 'world',
-      element: document.getElementById('figureThree'),
-      projection: 'mercator',
-      height: 600
-    });
-
-  // end promise
-  });
-// end main function
-};
-
-function linechart(data_dict, margin, width, height){
-
-  var years = Object.keys(data_dict);
-  for (var i = 0; i < years.length; i++) {
-    years[i] = Number(years[i])
-  };
-  var lineWorld = d5.select('#figureOne')
-                    .append('svg')
-                    .attr('class', 'linechart')
-                    .attr('id', 'worldLiteracy')
-                    .attr('height', height)
-                    .attr('width', width)
-                    .attr('stroke', 'black');
-
-  var xScaleLine = d5.scaleLinear()
-                     .domain([d5.min(years), d5.max(years)])
-                     .range([margin.left, width - margin.right]),
-      yScaleLine = d5.scaleLinear()
-                     .domain([0, 100])
-                     .range([height - margin.bottom, margin.top]);
-
-  var line = d5.line()
-               .x(function(d, i){
-                 return xScaleLine(years[i])
-               })
-               .y(function(d){
-                 return yScaleLine(d.y)
-               })
-               .curve(d5.curveMonotoneX);
-
-  var dataset = d5.range(years.length).map(function(d, i) { return {"y": data_dict[years[i]]} })
-
-  var xAxisLine = d5.axisBottom()
-                    .scale(xScaleLine),
-      yAxisLine = d5.axisLeft()
-                    .scale(yScaleLine);
-
-  lineWorld.append('g')
-           .attr('class', 'xAxis')
-           .attr('id', 'xLine')
-           .attr('transform', 'translate(0,' + (height - margin.bottom) + ')')
-           .call(xAxisLine);
-  lineWorld.append('g')
-           .attr('class', 'yAxis')
-           .attr('id', 'yLine')
-           .attr('transform', 'translate(' + margin.left + ', 0)')
-           .call(yAxisLine);
-
-  console.log(xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-              + xScaleLine.domain()[0]));
-
-  lineWorld.append('text')
-           .attr('class', 'figTitle')
-           .attr('id', 'lineTitle')
-           .attr('text-anchor', 'middle')
-           .attr('y', margin.top - 10)
-           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-                                  + xScaleLine.domain()[0]))
-           .text('Worldwide literacy rate, 1800-2014')
-
-  var path = lineWorld.append('path')
-                      .datum(dataset)
-                      .attr('class', 'line')
-                      .attr('id', 'lineWorld')
-                      .attr('d', line)
-
-  var totalLength = path.node().getTotalLength();
-  path
-   .attr("stroke-dasharray", totalLength + " " + totalLength)
-   .attr("stroke-dashoffset", totalLength)
-   .transition()
-     .duration(2000)
-     .attr("stroke-dashoffset", 0);
-
-
-// end linechart function
 };
 
 
