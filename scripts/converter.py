@@ -12,8 +12,8 @@ def input_read(input):
     Parse the dataset and store in a dict to read later.
     """
 
-    with open(input) as f:
-        reader = csv.DictReader(f)
+    with open(input, encoding='utf-8-sig') as f:
+        reader = csv.DictReader(f, delimiter= ";")
         fieldnames = reader.fieldnames
         data_dict = {str(key): [] for key in fieldnames}
 
@@ -32,18 +32,18 @@ def preprocess(data_dict):
     Preprocess data to use in json file, for instance change strings to floats
     or integers for calculations.
     """
-
-    # literacy_rate_by_country.csv:
-    float_keys = ['Literate world population (people)', 'Illiterate world population (people)']
-    # int_keys = ['Year']
-
-    # ints:
-    # for key in int_keys:
-    #     data_dict[key] = [int(value) for value in data_dict[key]]
-
-    # floats:
-    for key in float_keys:
-        data_dict[key] = [float(value) for value in data_dict[key]]
+    #
+    # # literacy_rate_by_country.csv:
+    # float_keys = ['Literate world population (people)', 'Illiterate world population (people)']
+    # # int_keys = ['Year']
+    #
+    # # ints:
+    # # for key in int_keys:
+    # #     data_dict[key] = [int(value) for value in data_dict[key]]
+    #
+    # # floats:
+    # for key in float_keys:
+    #     data_dict[key] = [float(value) for value in data_dict[key]]
 
     return data_dict
 
@@ -55,20 +55,11 @@ def to_json(data_dict, fieldnames, json_file):
 
     with open(json_file, 'w') as f:
 
-        head = 'Year'
-        first_json_dict = {str(key): {} for key in data_dict[head]}
+        head = 'Short Name'
+        json_dict = {str(key): "" for key in data_dict[head]}
 
         for index, country in enumerate(data_dict[head]):
-            for key in fieldnames[3:]:
-                first_json_dict[country][key] = data_dict[key][index]
-
-        json_dict = {str(key): 0 for key in data_dict[head]}
-        for year in first_json_dict:
-            tot = (first_json_dict[year]['Literate world population (people)']
-                  + first_json_dict[year]['Illiterate world population (people)'])
-            literate = round(first_json_dict[year]['Literate world population (people)'] /
-                        tot * 100, 2)
-            json_dict[year] = literate
+            json_dict[country] = data_dict[fieldnames[0]][index]
 
         f.write(json.dumps(json_dict))
 

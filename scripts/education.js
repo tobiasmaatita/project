@@ -23,49 +23,78 @@ function main(){
     svgFour: 100
   };
   var educationAttainment = '../data/education_attainment.json',
-      literacyCountry = '../data/literacy_rate_by_country.json';
-      worldLiteracyData = '../data/literate_and_illiterate_world_population.json';
+      literacyCountry = '../data/literacy_rate_by_country.json',
+      worldLiteracyData = '../data/literate_and_illiterate_world_population.json',
+      countryCodesData = '../data/country_names.json';
   var request = [d5.json(educationAttainment), d5.json(literacyCountry),
-                 d5.json(worldLiteracyData)];
+                 d5.json(worldLiteracyData), d5.json(countryCodesData)];
 
   Promise.all(request).then(function(response) {
     var dataAttainment = response[0],
         dataLiteracyCountry = response[1],
-        dataLiteracyWorld = response[2];
+        dataLiteracyWorld = response[2],
+        countryCodes = response[3];
     var allCountriesAttainment = Object.keys(dataAttainment),
         allCountriesWorldLiteracy = Object.keys(dataLiteracyCountry),
         yearsLiteracyWorld = Object.keys(dataLiteracyWorld);
+    dataAttainment = addCountryCodes(dataAttainment, countryCodes);
+    console.log(dataAttainment);
+    dataLiteracyCountry = addCountryCodes(dataLiteracyCountry, countryCodes);
+
 
     // literacy map
-    var map = new Datamap({
+    var mapLiteracy = new Datamap({
       scope: 'world',
       element: document.getElementById('figureTwo'),
       projection: 'mercator',
       height: 600,
-      // data: dataLiteracyCountry,
+      data: dataLiteracyCountry,
       geographyConfig: {
         highlightBorderColor: 'yellow',
-        popupTemplate: function(geography, dataLiteracyCountry) {
-
-          console.log(geography)
-
-          return '<div class="hoverinfo">' + data.Year
+        popupTemplate: function(geography, data) {
+          var literacy = data['Literacy rate (%)'],
+              year = data['Year'];
+          if (literacy) {
+            return '<div class="hoverinfo">' + '<strong>'+ geography.properties.name + '</strong><br>' + literacy + '% in ' + year;
+          } else {
+            return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
+          };
         }
       }
-
     });
 
     // literacy line
     linechart(dataLiteracyWorld, margin, widths.svgOne, heights.svgOne);
 
+    var blues = d5.scaleOrdinal(d5.schemeBlues[9]);
+    var year = slider(dataAttainment);
+
+
     // attainment map
-    var map = new Datamap({
+    var mapAttainment = new Datamap({
       scope: 'world',
       element: document.getElementById('figureThree'),
       projection: 'mercator',
-      height: 600
+      height: 600,
+      data: dataAttainment,
+      geographyConfig: {
+        highlightBorderColor: 'green',
+        popupTemplate: function(geography, data) {
+          var attainment = data[year]['years of education total'];
+          if (attainment) {
+            return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + attainment + ' years';
+          } else {
+            return '<div class="hoverinfo">No information available'
+          };
+        }
+      }
     });
-    slider(dataAttainment);
+    d3.select('figureThree')
+      .selectAll('path')
+      .style('fill', function(d) {
+        return colorBlue(data_dict, d.id, '1870');
+      });
+
 
   // end promise
   });
@@ -120,9 +149,6 @@ function linechart(data_dict, margin, width, height){
            .attr('transform', 'translate(' + margin.left + ', 0)')
            .call(yAxisLine);
 
-  console.log(xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-              + xScaleLine.domain()[0]));
-
   lineWorld.append('text')
            .attr('class', 'figTitle')
            .attr('id', 'lineTitle')
@@ -152,7 +178,7 @@ function linechart(data_dict, margin, width, height){
 
 function slider(data_dict) {
 
-  var years = Object.keys(data_dict['Australia'])
+  var years = Object.keys(data_dict['AUS'])
   for (var i = 0; i < years.length; i++) {
     years[i] = Number(years[i])
   }
@@ -160,6 +186,7 @@ function slider(data_dict) {
   // var dataTime = d5.range(years.length).map(function(d) {
   //     return new Date(years[d], 1,1);
   //   });
+
   var sliderTime = d5
     .sliderBottom()
     // .min(d5.min(dataTime))
@@ -177,7 +204,7 @@ function slider(data_dict) {
     .on('onchange', function(val) {
       //val => {
       // d5.select('p#value-time').text(d5.timeFormat('%Y')(val));
-      updateMap(data_dict, value);
+      var year = updateMap(data_dict, sliderTime)
       d5.select('p#value-time').text(val)
     });
 
@@ -191,10 +218,25 @@ function slider(data_dict) {
 
     gTime.call(sliderTime);
     d5.select('p#value-time').text((sliderTime.value()));
+
+    return sliderTime.value();
 };
 
-function updateMap(data_dict, year) {
-  return True
+function updateMap(data_dict, sliderTime) {
+  var year = sliderTime.value();
+  var test = d5.select('#figureThree')
+               .select('path')
+  console.log(test);
+  d5.select('#figureThree')
+    .selectAll('path')
+    .style('fill', function(d) {
+      return colorBlue(data_dict, d.id, year)
+    })
+    .popuptemplate(function(d){
+      return '<div class="hoverinfo">' + '<strong>' + 'hallo' + '</strong>'
+    });
+
+  return year
 };
 
 function d3Stuff() {
@@ -376,6 +418,38 @@ function d3Stuff() {
          .append('li').text('source 2');
 
 };
+
+function addCountryCodes(data, codes) {
+// add country codes to dictionary to use in data map
+
+  var allCountries = Object.keys(codes),
+      allDataKeys = Object.keys(data);
+  var newDataset = new Object;
+
+  for (var i = 0; i < allCountries.length; i++) {
+    if (data[allCountries[i]]) {
+      newDataset[codes[allCountries[i]]] = data[allCountries[i]]
+    };
+  };
+
+  return newDataset
+
+};
+
+function colorBlue(data, id, year) {
+  var info = data[id];
+  var blues = d5.schemeBlues[9];
+  if (info) {
+    var attainment = data[id][year]['years of education total'];
+    var attainment = Math.round(attainment / 14 * 8 + 0.5);
+    return blues[attainment];
+  } else {
+    return 'grey';
+  };
+  // var blues = d5.schemeBlues[];
+  // var attainment = data[id]['years of education total']
+}
+
 
 
 
