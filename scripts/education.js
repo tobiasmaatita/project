@@ -1,7 +1,7 @@
 function main(){
 
   d3Stuff();
-
+  CURRENT_YEAR = 0;
   var margin = {
     top: 30,
     left: 60,
@@ -14,13 +14,13 @@ function main(){
     svgOne: 600,
     svgTwo: 100,
     svgThree: 100,
-    svgFour: 100
+    svgFour: 600
   },
       heights = {
     svgOne: 450,
     svgTwo: 100,
     svgThree: 100,
-    svgFour: 100
+    svgFour: 450
   };
   var educationAttainment = '../data/education_attainment.json',
       literacyCountry = '../data/literacy_rate_by_country.json',
@@ -88,6 +88,15 @@ function main(){
     var blues = d5.schemeBlues[9];
     var year = slider(dataAttainment);
 
+    var barChart = d5.select('#figureFour')
+                     .append('svg')
+                     .attr('class', 'barChart')
+                     .attr('id', 'attainmentChart')
+                     .attr('height', heights.svgFour)
+                     .attr('width', widths.svgFour)
+                     .attr('fill', 'teal')
+                     .attr('stroke', 'black');
+
     // attainment map
     var mapAttainment = new Datamap({
       scope: 'world',
@@ -123,9 +132,18 @@ function main(){
     d5.select('#figureThree')
       .selectAll('path')
       .on('click', function(d) {
-        barchart(dataAttainment, d.id, year.value(), margin, widths.svgFour, heights.svgFour);
-      })
-
+        var barInfo = {chart: barChart, data: dataAttainment, country: d,
+                          year: year, margin: margin, width: widths.svgFour,
+                          height: heights.svgFour};
+        if (CURRENT_YEAR === 0) {
+          barchart(barChart, dataAttainment, d, year.value(),
+                   margin, heights.svgFour, widths.svgFour);
+        } else {
+          barchart(barChart, dataAttainment, d, CURRENT_YEAR,
+                   margin, heights.svgFour, widths.svgFour);
+        };
+        slider(dataAttainment, barInfo);
+      });
 
   // end promise
   });
@@ -202,7 +220,7 @@ function linechart(data_dict, margin, width, height){
            .attr('x', -yScaleLine((yScaleLine.domain()[1])/2))
            .attr('y', margin.axisText)
            .attr('transform', 'rotate(-90)')
-           .text('Literacy (%)');
+           .text('Literate population (%)');
 
   var lineTip = d5.tip()
     .attr('class', 'd3-tip')
@@ -224,6 +242,7 @@ function linechart(data_dict, margin, width, height){
    .attr("stroke-dasharray", totalLength + " " + totalLength)
    .attr("stroke-dashoffset", totalLength)
    .transition()
+     .ease(d5.easeLinear)
      .duration(2000)
      .attr("stroke-dashoffset", 0);
 
@@ -242,26 +261,25 @@ function linechart(data_dict, margin, width, height){
                       .style('opacity', 0)
                       .on('mouseover', lineTip.show)
                       .on('mouseout', lineTip.hide)
-                      .transition()
-                          .ease(d5.easeQuad)
-                          .duration(900)
-                          .delay(function(d, i) {
-                            return i * 50
-                          })
-                          .style('opacity', 1)
 
   dots.attr('cx', function(d, i) {
         return xScaleLine(d.year);
       })
       .attr('cy', function(d) {
         return yScaleLine(d.rate)
-      });
+      })
+      .transition()
+          .ease(d5.easeLinear)
+          .delay(2000)
+          .style('opacity', 1);;
 
 
 };
 
-function slider(data_dict) {
+function slider(data_dict, barInfo) {
 
+  d5.select('#sliderAttainment')
+    .remove()
   var years = new Array;
   var dataYears = Object.keys(data_dict['AUS'])
   for (var i = 0; i < dataYears.length; i++) {
@@ -269,6 +287,13 @@ function slider(data_dict) {
       years[i] = Number(dataYears[i]);
     };
   }
+  barInfo = barInfo || 0;
+
+  if (barInfo != 0){
+    var year = barInfo.year.value();
+  } else {
+    var year = d5.min(years);
+  };
 
   // var dataTime = d5.range(years.length).map(function(d) {
   //     return new Date(years[d], 1,1);
@@ -287,18 +312,23 @@ function slider(data_dict) {
     // .tickFormat(d5.timeFormat('%Y'))
     // .tickValues(years)
     // .default(new Date(d5.min(dataTime)))
-    .default(d5.min(years))
+    .default(CURRENT_YEAR)
     .on('onchange', function(val) {
       //val => {
       // d5.select('p#value-time').text(d5.timeFormat('%Y')(val));
       d5.select('p#value-time').text(val)
-      var year = updateMap(data_dict, sliderTime)
+      var current = updateMap(data_dict, sliderTime)
+      CURRENT_YEAR = current.value();
+      if (barInfo != 0) {
+        updateBar(sliderTime, barInfo)
+      }
 
     });
 
     var gTime = d5
       .select('div#slider-time')
       .append('svg')
+      .attr('id', 'sliderAttainment')
       .attr('width', 847)
       .attr('height', 100)
       .append('g')
@@ -319,7 +349,7 @@ function updateMap(data_dict, sliderTime) {
       return colorBlue(data_dict, d.id, year)
     });
 
-  return year
+  return sliderTime
 };
 
 function d3Stuff() {
@@ -473,7 +503,6 @@ function d3Stuff() {
   content.append('div')
          .attr('class', 'figure')
          .attr('id', 'figureFour')
-         .text('hier komt figuur 4');
   tableOfContents.select('#contents')
                  .append('li')
                  .attr('class', 'subsection')
@@ -563,14 +592,14 @@ function colorBlue(data, id, year) {
   // var attainment = data[id]['years of education total']
 };
 
-function barchart(data, id, year, margin, height, width) {
+function barchart(barChart, data, country, year, margin, height, width, transDuration) {
 
-  if (data[id] == undefined) {
+  transDuration = transDuration || 750;
+  if (data[country.id] == undefined) {
     console.log('no data!!');
     return
   }
-
-  var info = data[id][year],
+  var info = data[country.id][year],
       eduKeys = ['uneducated', 'primary', 'secondary', 'tertiary'],
       dict = new Object,
       values = new Array;
@@ -578,15 +607,133 @@ function barchart(data, id, year, margin, height, width) {
     dict[eduKeys[i]] = info[eduKeys[i]];
     values[i] = info[eduKeys[i]];
   };
-  console.log(values);
+
+  var scales = barScales(values, margin, height, width);
+  var axes = barAxes(eduKeys, scales);
+  axesText(barChart, scales, margin, height, width, country, year)
+
+  barChart.append('g')
+          .attr('class', 'xAxis')
+          .attr('id', 'xBar')
+          .attr('transform', 'translate(0, ' + (height - margin.bottom) + ')')
+
+  barChart.append('g')
+          .attr('class', 'yAxis')
+          .attr('id', 'yBar')
+          .attr('transform', 'translate(' + margin.left + ', 0)')
+
+  barChart.select('#xBar')
+          .transition()
+              .call(axes.x);
+  barChart.select('#yBar')
+          .transition()
+              .call(axes.y);
+
+  var bar = barChart.selectAll('rect')
+                    .data(values);
+
+  bar.enter()
+     .append('rect')
+     .attr('class', 'bar')
+     .attr('x', function(d, i) {
+       return scales.x(i);
+     })
+     .attr('y', height - margin.bottom)
+     .merge(bar)
+     .transition(d5.easeQuad)
+     .duration(transDuration)
+     // .attr('x', function(d, i) {
+     //   return scales.x(i);
+     // })
+     .attr('width', 40)
+     .attr('y', function(d) {
+       return scales.y(d);
+     })
+     .attr('height', function(d) {
+       return height - scales.y(d) - margin.bottom;
+     });
+  bar.exit()
+     .transition()
+     .duration(transDuration)
+     .attr('height', 0)
+     .attr('y', height - margin.bottom)
+  return
 };
 
-function barScales() {
+function updateBar(sliderTime, barInfo) {
+  var year = CURRENT_YEAR,
+      transDuration = 10;
+  barchart(barInfo.chart, barInfo.data, barInfo.country, year, barInfo.margin,
+           barInfo.height, barInfo.width, transDuration)
+  return
+}
 
-  var xScaleBar = scaleLinear()
-  return [xScaleBar, yScaleBar, xTickScaleBar];
+function barScales(values, margin, height, width) {
+
+  var xScaleBar = d5.scaleLinear()
+                    .domain([0, values.length - 1])
+                    .range([margin.left, width - margin.right]);
+  var yScaleBar = d5.scaleLinear()
+                    .domain([0, 100])
+                    .range([height - margin.bottom, margin.top]);
+  // barwidth
+  var xTickScaleBar = d5.scaleLinear()
+                        .domain([0, values.length - 1])
+                        .range([margin.left, width - margin.right]);
+
+  return {x: xScaleBar, y: yScaleBar, ticks: xTickScaleBar};
 };
 
+function barAxes(keys, scales) {
+
+  var xAxisBar = d5.axisBottom()
+                   .ticks(keys.length)
+                   .tickFormat(function(d) {
+                     return keys[d];
+                   })
+                   .scale(scales.x);
+  var yAxisBar = d5.axisLeft()
+                   .scale(scales.y);
+
+  return {x: xAxisBar, y: yAxisBar};
+
+
+
+};
+
+function axesText(barChart, scales, margin, height, width, country, year) {
+
+  barChart.append('text')
+          .attr('class', 'figTitle')
+          .attr('id', 'barTitle')
+          .attr('text-anchor', 'middle')
+          .attr('x', scales.x(scales.x.domain()[1]/2))
+          .attr('y', margin.axisText);
+  barChart.append('text')
+          .attr('class', 'axeTitle')
+          .attr('id', 'xTitle')
+          .attr('text-anchor', 'middle')
+          .attr('x', scales.x(scales.x.domain()[1]/2))
+          .attr('y', height - margin.axisText)
+  barChart.append('text')
+          .attr('class', 'axeTitle')
+          .attr('id', 'yTitle')
+          .attr('text-anchor', 'middle')
+          .attr('x', -scales.y(scales.y.domain()[1]/2))
+          .attr('y', margin.axisText)
+          .attr('transform', 'rotate(-90)')
+
+  barChart.select('#barTitle')
+          .transition()
+          .text(country.properties.name + ', ' + year);
+  barChart.select('#xTitle')
+          .transition()
+          .text('Educational level');
+  barChart.select('#yTitle')
+          .transition()
+          .text('Percentage');
+
+};
 
 
 

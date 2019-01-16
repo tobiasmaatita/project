@@ -96,6 +96,7 @@ ol
   font-family: helvetica;
   font-size: 14px;
   text-align: justify;
+  fill: none;
 }
 
 .text h1
@@ -110,6 +111,11 @@ ol
   font-family: helvetica;
   font-size: 20px;
   color: black;
+}
+
+svg text
+{
+  fill: black;
 }
 
 li.subsection
@@ -188,7 +194,7 @@ li a
 {
   border: 1px solid purple;
   width: 100%;
-  height: 200px;
+  height: auto;
   position: relative;
   margin-top: 15px;
 }
