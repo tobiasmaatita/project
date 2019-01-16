@@ -6,9 +6,9 @@ function main(){
     top: 30,
     left: 60,
     right: 30,
-    bottom: 50,
+    bottom: 60,
     title: 45,
-    axisText: 30
+    axisText: 15
   },
       widths = {
     svgOne: 600,
@@ -17,7 +17,7 @@ function main(){
     svgFour: 100
   },
       heights = {
-    svgOne: 400,
+    svgOne: 450,
     svgTwo: 100,
     svgThree: 100,
     svgFour: 100
@@ -37,11 +37,14 @@ function main(){
     var allCountriesAttainment = Object.keys(dataAttainment),
         allCountriesWorldLiteracy = Object.keys(dataLiteracyCountry),
         yearsLiteracyWorld = Object.keys(dataLiteracyWorld);
+
     dataAttainment = addCountryCodes(dataAttainment, countryCodes);
-    console.log(dataAttainment);
     dataLiteracyCountry = addCountryCodes(dataLiteracyCountry, countryCodes);
+    dataAttainment = fillkeysAttainment(dataAttainment, allCountriesAttainment);
+    dataLiteracyCountry = fillkeysLiteracy(dataLiteracyCountry, allCountriesWorldLiteracy);
 
 
+    blues = d5.schemeBlues[9];
     // literacy map
     var mapLiteracy = new Datamap({
       scope: 'world',
@@ -49,15 +52,31 @@ function main(){
       projection: 'mercator',
       height: 600,
       data: dataLiteracyCountry,
+      fills: {
+        ZERO: blues[0],
+        ONE: blues[1],
+        TWO: blues[2],
+        THREE: blues[3],
+        FOUR: blues[4],
+        FIVE: blues[5],
+        SIX:  blues[6],
+        SEVEN: blues[7],
+        EIGHT: blues[8],
+        defaultFill: 'grey'
+      },
       geographyConfig: {
         highlightBorderColor: 'yellow',
+        fill: function(geography, data) {
+          console.log(data);
+        },
         popupTemplate: function(geography, data) {
+          if (!data){
+            return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
+          };
           var literacy = data['Literacy rate (%)'],
               year = data['Year'];
-          if (literacy) {
+          if (data) {
             return '<div class="hoverinfo">' + '<strong>'+ geography.properties.name + '</strong><br>' + literacy + '% in ' + year;
-          } else {
-            return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
           };
         }
       }
@@ -66,9 +85,8 @@ function main(){
     // literacy line
     linechart(dataLiteracyWorld, margin, widths.svgOne, heights.svgOne);
 
-    var blues = d5.scaleOrdinal(d5.schemeBlues[9]);
+    var blues = d5.schemeBlues[9];
     var year = slider(dataAttainment);
-
 
     // attainment map
     var mapAttainment = new Datamap({
@@ -77,23 +95,36 @@ function main(){
       projection: 'mercator',
       height: 600,
       data: dataAttainment,
+      fills: {
+        ZERO: blues[0],
+        ONE: blues[1],
+        TWO: blues[2],
+        THREE: blues[3],
+        FOUR: blues[4],
+        FIVE: blues[5],
+        SIX:  blues[6],
+        SEVEN: blues[7],
+        EIGHT: blues[8],
+        defaultFill: 'grey'
+      },
       geographyConfig: {
         highlightBorderColor: 'green',
         popupTemplate: function(geography, data) {
-          var attainment = data[year]['years of education total'];
+          if (!data){
+            return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
+          };
+          var attainment = data[year.value()]['years of education total'];
           if (attainment) {
             return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + attainment + ' years';
-          } else {
-            return '<div class="hoverinfo">No information available'
           };
         }
       }
     });
-    d3.select('figureThree')
+    d5.select('#figureThree')
       .selectAll('path')
-      .style('fill', function(d) {
-        return colorBlue(data_dict, d.id, '1870');
-      });
+      .on('click', function(d) {
+        barchart(dataAttainment, d.id, year.value(), margin, widths.svgFour, heights.svgFour);
+      })
 
 
   // end promise
@@ -132,7 +163,6 @@ function linechart(data_dict, margin, width, height){
                .curve(d5.curveMonotoneX);
 
   var dataset = d5.range(years.length).map(function(d, i) { return {"y": data_dict[years[i]]} })
-
   var xAxisLine = d5.axisBottom()
                     .scale(xScaleLine)
       yAxisLine = d5.axisLeft()
@@ -157,12 +187,37 @@ function linechart(data_dict, margin, width, height){
            .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
                                   + xScaleLine.domain()[0]))
            .text('Worldwide literacy rate, 1800-2014')
+  lineWorld.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'xTitle')
+           .attr('text-anchor', 'middle')
+           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
+                                  + xScaleLine.domain()[0]))
+           .attr('y', height - margin.axisText)
+           .text('Year')
+  lineWorld.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'yTitle')
+           .attr('text-anchor', 'middle')
+           .attr('x', -yScaleLine((yScaleLine.domain()[1])/2))
+           .attr('y', margin.axisText)
+           .attr('transform', 'rotate(-90)')
+           .text('Literacy (%)');
+
+  var lineTip = d5.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d, i) {
+      return "<strong>" + years[i] + "</strong> <br><span>" +
+             data_dict[years[i]]+ " %" + "</span>";
+    });
+  lineWorld.call(lineTip)
 
   var path = lineWorld.append('path')
                       .datum(dataset)
                       .attr('class', 'line')
                       .attr('id', 'lineWorld')
-                      .attr('d', line)
+                      .attr('d', line);
 
   var totalLength = path.node().getTotalLength();
   path
@@ -172,15 +227,47 @@ function linechart(data_dict, margin, width, height){
      .duration(2000)
      .attr("stroke-dashoffset", 0);
 
+  var dotsData = new Array;
+  for (var i = 0; i < years.length; i++) {
+    var year = years[i]
+    dotsData[i] = {year: year, rate: data_dict[years[i]]}
+  };
 
-// end linechart function
+  var dots = lineWorld.selectAll("dot")
+                      .data(dotsData)
+                      .enter()
+                      .append("circle")
+                      .attr('class', 'dot')
+                      .attr("r", 5)
+                      .style('opacity', 0)
+                      .on('mouseover', lineTip.show)
+                      .on('mouseout', lineTip.hide)
+                      .transition()
+                          .ease(d5.easeQuad)
+                          .duration(900)
+                          .delay(function(d, i) {
+                            return i * 50
+                          })
+                          .style('opacity', 1)
+
+  dots.attr('cx', function(d, i) {
+        return xScaleLine(d.year);
+      })
+      .attr('cy', function(d) {
+        return yScaleLine(d.rate)
+      });
+
+
 };
 
 function slider(data_dict) {
 
-  var years = Object.keys(data_dict['AUS'])
-  for (var i = 0; i < years.length; i++) {
-    years[i] = Number(years[i])
+  var years = new Array;
+  var dataYears = Object.keys(data_dict['AUS'])
+  for (var i = 0; i < dataYears.length; i++) {
+    if (dataYears[i] != 'fillKey') {
+      years[i] = Number(dataYears[i]);
+    };
   }
 
   // var dataTime = d5.range(years.length).map(function(d) {
@@ -204,8 +291,9 @@ function slider(data_dict) {
     .on('onchange', function(val) {
       //val => {
       // d5.select('p#value-time').text(d5.timeFormat('%Y')(val));
-      var year = updateMap(data_dict, sliderTime)
       d5.select('p#value-time').text(val)
+      var year = updateMap(data_dict, sliderTime)
+
     });
 
     var gTime = d5
@@ -219,21 +307,16 @@ function slider(data_dict) {
     gTime.call(sliderTime);
     d5.select('p#value-time').text((sliderTime.value()));
 
-    return sliderTime.value();
+    return sliderTime;
 };
 
 function updateMap(data_dict, sliderTime) {
+
   var year = sliderTime.value();
-  var test = d5.select('#figureThree')
-               .select('path')
-  console.log(test);
   d5.select('#figureThree')
     .selectAll('path')
     .style('fill', function(d) {
       return colorBlue(data_dict, d.id, year)
-    })
-    .popuptemplate(function(d){
-      return '<div class="hoverinfo">' + '<strong>' + 'hallo' + '</strong>'
     });
 
   return year
@@ -436,20 +519,73 @@ function addCountryCodes(data, codes) {
 
 };
 
+function fillkeysAttainment(data) {
+
+  var countries = Object.keys(data);
+  var fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
+                  'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
+
+  for (var i = 0; i < countries.length; i++) {
+    var attainment = data[countries[i]]['1870']['years of education total'];
+    attainment = Math.round(attainment / 14 * 8 + 0.5);
+    data[countries[i]]['fillKey'] = fillKeys[attainment];
+  };
+  return data;
+};
+
+function fillkeysLiteracy(data) {
+
+  var countries = Object.keys(data);
+  var fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
+                  'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
+
+  for (var i = 0; i < countries.length; i++) {
+    var literacy = data[countries[i]]['Literacy rate (%)'];
+    literacy = Math.round(literacy / 10 - 2);
+    data[countries[i]]['fillKey'] = fillKeys[literacy];
+  };
+  return data;
+
+
+};
+
 function colorBlue(data, id, year) {
   var info = data[id];
   var blues = d5.schemeBlues[9];
   if (info) {
     var attainment = data[id][year]['years of education total'];
-    var attainment = Math.round(attainment / 14 * 8 + 0.5);
+    attainment = Math.round(attainment / 14 * 8 + 0.5);
     return blues[attainment];
   } else {
     return 'grey';
   };
   // var blues = d5.schemeBlues[];
   // var attainment = data[id]['years of education total']
-}
+};
 
+function barchart(data, id, year, margin, height, width) {
+
+  if (data[id] == undefined) {
+    console.log('no data!!');
+    return
+  }
+
+  var info = data[id][year],
+      eduKeys = ['uneducated', 'primary', 'secondary', 'tertiary'],
+      dict = new Object,
+      values = new Array;
+  for (var i = 0; i < eduKeys.length; i++) {
+    dict[eduKeys[i]] = info[eduKeys[i]];
+    values[i] = info[eduKeys[i]];
+  };
+  console.log(values);
+};
+
+function barScales() {
+
+  var xScaleBar = scaleLinear()
+  return [xScaleBar, yScaleBar, xTickScaleBar];
+};
 
 
 

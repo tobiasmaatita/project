@@ -22,4 +22,8 @@ can achieve this in my converter program.
 Added the country codes to the data within my education.js script. The map does not
 seem to know countries such as Ivory Coast and Taiwan. Very strange! I think it has
 to do with the different names used by the map and the data. I will have to fix this issue.
-  Decided to add interactivity with a tooltip to the first line chart. 
+  Decided to add interactivity with a tooltip to the first line chart.
+
+## Day 7
+Added tooltip to the line chart. First problem: interactivity between the slider and the datamap.
+The coloring works, but the information passed on to the popupTemplate does not change accordingly. 
