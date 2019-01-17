@@ -163,9 +163,9 @@ li a
 
 #figureTwo
 {
-  /* border: 1px solid purple; */
+  border: 1px solid purple;
   width: 100%;
-  /* height: 500px; */
+  height: 600px;
   position: relative;
   margin-top: 15px;
 }
@@ -203,8 +203,6 @@ li a
 {
   border: 1px solid purple;
 }
-
-
 
 /* d3 tip from http://bl.ocks.org/Caged/6476579*/
 .d3-tip
