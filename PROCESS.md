@@ -40,4 +40,7 @@ Working towards an alpha version. Thinking about including separate text files w
 However, I still need to fix the sys path issue. Therefore, not sure whether this is the right way to go. Hopefully,
 I will have fixed this by the end of the day. Decided to hold off on adding any other plots until the graphs and maps all
 have titles, labels, coloring, etc. Right now, both my data maps use the color blue to illustrate a point. Maybe change one
-of those maps' color? I also have to add legends. Also, the figures do not adjust to the size of the screen. Fixed the problem with the sys paths by collecting the data from my github's raw files. I will have to put the datamaps in separate functions. 
+of those maps' color? I also have to add legends. Also, the figures do not adjust to the size of the screen. Fixed the problem with the sys paths by collecting the data from my github's raw files. I will have to put the datamaps in separate functions.
+
+## Day 10 (Fri)
+Trying to fix legends. Used the legend plugin from the datamap, but I did not like the resulting legends. Therefore, I am now trying to make a legend using D3.

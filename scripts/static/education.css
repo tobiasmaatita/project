@@ -200,6 +200,11 @@ li a
   cursor: pointer;
 }
 
+#figureThree dt
+{
+  float: left;
+}
+
 #nameFigThree
 {
   margin: 0;
@@ -218,6 +223,16 @@ li a
 #slider-time
 {
   /* border: 1px solid purple; */
+}
+
+.axeTitle
+{
+  font-weight: lighter;
+}
+
+.xAxis, .yAxis
+{
+  font-weight: lighter;
 }
 
 /* d3 tip from http://bl.ocks.org/Caged/6476579*/

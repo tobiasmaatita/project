@@ -5,11 +5,12 @@ function main() {
   var margin = {
     top: 30,
     left: 60,
-    right: 30,
+    right: 80,
     bottom: 70,
     title: 45,
     axisText: 23,
-    subscript: 5
+    subscript: 5,
+    bar: 10
   },
       widths = {
     svgOne: 600,
@@ -81,10 +82,7 @@ function main() {
         }
       }
     });
-
     mapLiteracy.legend();
-
-
 
     // literacy line
     linechart(dataLiteracyWorld, margin, widths.svgOne, heights.svgOne);
@@ -106,7 +104,6 @@ function main() {
       scope: 'world',
       element: document.getElementById('figureThree'),
       projection: 'mercator',
-      // height: 600,
       responsive: true,
       data: dataAttainment,
       fills: {
@@ -159,6 +156,40 @@ function main() {
         }
         slider(dataAttainment, barInfo);
       });
+
+    // mapAttainment.legend({
+    //   defaultFillName: 'No data',
+    //   labels: {
+    //     ZERO: '0-10',
+    //     ONE: '11-20',
+    //     TWO: '21-30',
+    //     THREE: '31-40',
+    //     FOUR: '41-50',
+    //     FIVE: '51-60',
+    //     SIX:  '70 - 80',
+    //     SEVEN: '81-90',
+    //     EIGHT: '90-100',
+    //   }
+    // });
+    // d5.select('#figureThree')
+    //   .append('div')
+    //   .attr('class', 'legend')
+    //   .attr('id', 'legendAttainment')
+    // d5.select('#legendAttainment')
+    //   .append('dl')
+    //
+    // for (var i = 0; i < blues.length; i++) {
+    //   d5.select('#legendAttainment dl')
+    //     .append('dd')
+    //     .style('background-color', function(d) {
+    //       return blues[i];
+    //     })
+    //     .style('width', 10)
+    //     .html('&nbsp;');
+    //   d5.select('#legendAttainment dl')
+    //     .append('dt')
+    //     .text(i)
+    // };
 
     d5.select('#nameFigThree')
       .append('text')
@@ -666,6 +697,24 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
           .transition()
               .call(axes.y);
 
+  // gridlines in y axis function
+  function make_y_gridlines() {
+      return d5.axisLeft(scales.y)
+          .ticks(10)
+  }
+
+  // add the Y gridlines
+  barChart.append("g")
+          .attr("class", "grid")
+          .attr('transform', 'translate(' + margin.left + ',0)')
+
+  barChart.select('.grid')
+          .transition()
+            .call(make_y_gridlines()
+              .tickSize(-width + margin.right)
+              .tickFormat("")
+            );
+
   var bar = barChart.selectAll('rect')
                     .data(values);
 
@@ -685,7 +734,8 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
      })
      .attr('height', function(d) {
        return height - scales.y(d) - margin.bottom;
-     });
+     })
+     .style('z-index', 10);
   bar.exit()
      .transition()
      .duration(transDuration)
@@ -708,14 +758,14 @@ function barScales(values, margin, height, width) {
 
   var xScaleBar = d5.scaleLinear()
                     .domain([0, values.length - 1])
-                    .range([margin.left, width - margin.right]);
+                    .range([margin.left + margin.bar, width - margin.right]);
   var yScaleBar = d5.scaleLinear()
                     .domain([0, 100])
                     .range([height - margin.bottom, margin.top]);
-  // barwidth
+  var barWidth = 40
   var xTickScaleBar = d5.scaleLinear()
                         .domain([0, values.length - 1])
-                        .range([margin.left, width - margin.right]);
+                        .range([margin.left + margin.bar + barWidth/2, width - margin.right + barWidth/2]);
 
   return {x: xScaleBar, y: yScaleBar, ticks: xTickScaleBar};
 };
@@ -728,7 +778,7 @@ function barAxes(keys, scales) {
                    .tickFormat(function(d) {
                      return keys[d];
                    })
-                   .scale(scales.x);
+                   .scale(scales.ticks);
   var yAxisBar = d5.axisLeft()
                    .scale(scales.y);
 
@@ -800,6 +850,10 @@ function noBars(country, barChart, margin, height, width) {
           .transition()
             .duration(transDuration)
             .remove();
+  barChart.selectAll('.grid')
+          .transition()
+            .duration(transDuration)
+            .remove()
 
   if (barChart.select('.figTitle').empty()) {
     barChart.append('text')
