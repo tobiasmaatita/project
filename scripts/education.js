@@ -710,10 +710,7 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
 
   barChart.select('.grid')
           .transition()
-            .call(make_y_gridlines()
-              .tickSize(-width + margin.right)
-              .tickFormat("")
-            );
+             
 
   var bar = barChart.selectAll('rect')
                     .data(values);
