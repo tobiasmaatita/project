@@ -1,8 +1,8 @@
 html, body
 {
     height: 100%;
-    /* overflow: scroll; */
     background: #ddd;
+    scroll-behavior: smooth;
 }
 
 /* layout */
@@ -205,6 +205,12 @@ li a
   float: left;
 }
 
+.datamaps-legend
+{
+  position: relative;
+  top: 97%;
+}
+
 #nameFigThree
 {
   margin: 0;
@@ -214,10 +220,29 @@ li a
 #figureFour
 {
   /* border: 1px solid purple; */
-  width: 100%;
+  display: inline-block;
+  width: 50%;
   height: auto;
   position: relative;
   margin-top: 15px;
+}
+
+#xBar path, #xBar line
+{
+  display: none;
+}
+
+.bar:hover
+{
+  fill: green;
+}
+
+#figureFive
+{
+  display: inline-block;
+  width: 50%;
+  height: auto;
+  left: 50%;
 }
 
 #slider-time
@@ -233,6 +258,12 @@ li a
 .xAxis, .yAxis
 {
   font-weight: lighter;
+}
+
+.grid
+{
+  opacity: 0.5;
+  z-index: 1;
 }
 
 /* d3 tip from http://bl.ocks.org/Caged/6476579*/

@@ -44,3 +44,6 @@ of those maps' color? I also have to add legends. Also, the figures do not adjus
 
 ## Day 10 (Fri)
 Trying to fix legends. Used the legend plugin from the datamap, but I did not like the resulting legends. Therefore, I am now trying to make a legend using D3.
+
+## Day 11 (Mon)
+Today, I strive to get a legend on at least one map. 

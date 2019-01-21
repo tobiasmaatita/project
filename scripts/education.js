@@ -16,7 +16,7 @@ function main() {
     svgOne: 600,
     svgTwo: 600,
     svgThree: 600,
-    svgFour: 600
+    svgFour: 400
   },
       heights = {
     svgOne: 450,
@@ -45,7 +45,9 @@ function main() {
     dataAttainment = fillkeysAttainment(dataAttainment, allCountriesAttainment);
     dataLiteracyCountry = fillkeysLiteracy(dataLiteracyCountry, allCountriesWorldLiteracy);
 
-    var greens = d5.schemeGreens[9];
+    console.log(dataAttainment);
+
+    var colors = d5.schemeBrBG[10];
     // literacy map
     var mapLiteracy = new Datamap({
       scope: 'world',
@@ -54,15 +56,16 @@ function main() {
       responsive: true,
       data: dataLiteracyCountry,
       fills: {
-        ZERO: greens[0],
-        ONE: greens[1],
-        TWO: greens[2],
-        THREE: greens[3],
-        FOUR: greens[4],
-        FIVE: greens[5],
-        SIX:  greens[6],
-        SEVEN: greens[7],
-        EIGHT: greens[8],
+        ZERO: colors[0],
+        ONE: colors[1],
+        TWO: colors[2],
+        THREE: colors[3],
+        FOUR: colors[4],
+        FIVE: colors[5],
+        SIX:  colors[6],
+        SEVEN: colors[7],
+        EIGHT: colors[8],
+        NINE: colors[9],
         defaultFill: 'grey'
       },
       geographyConfig: {
@@ -82,22 +85,42 @@ function main() {
         }
       }
     });
-    mapLiteracy.legend();
+    mapLiteracy.legend({
+      defaultFillName: 'No data',
+        labels: {
+          ZERO: '<10%',
+          ONE: '10-20%',
+          TWO: '20-30%',
+          THREE: '30-40%',
+          FOUR: '40-50%',
+          FIVE: '50-60%',
+          SIX: '60-70%',
+          SEVEN: '70-80%',
+          EIGHT: '80-90%',
+          NINE: '90-100%',
+        }});
 
     // literacy line
     linechart(dataLiteracyWorld, margin, widths.svgOne, heights.svgOne);
 
-    var blues = d5.schemeBlues[9];
+    var colorsAttainment = d5.schemeRdYlGn[7];
     var year = slider(dataAttainment);
 
     var barChart = d5.select('#figureFour')
                      .append('svg')
                      .attr('class', 'barChart')
                      .attr('id', 'attainmentChart')
-                     .attr('height', heights.svgFour)
-                     .attr('width', widths.svgFour)
+                     .attr('height', 0)
+                     .attr('width', 0)
                      .attr('fill', 'teal')
                      .attr('stroke', 'black');
+    var multLines = d5.select('#figureFive')
+                      .append('svg')
+                      .attr('class', 'linechart')
+                      .attr('id', 'multipleLines')
+                      .attr('height', 0)
+                      .attr('width', 0)
+                      .attr('stroke', 'black');
 
     // attainment map
     var mapAttainment = new Datamap({
@@ -107,15 +130,12 @@ function main() {
       responsive: true,
       data: dataAttainment,
       fills: {
-        ZERO: blues[0],
-        ONE: blues[1],
-        TWO: blues[2],
-        THREE: blues[3],
-        FOUR: blues[4],
-        FIVE: blues[5],
-        SIX:  blues[6],
-        SEVEN: blues[7],
-        EIGHT: blues[8],
+        ZERO: colorsAttainment[0],
+        ONE: colorsAttainment[1],
+        TWO: colorsAttainment[2],
+        THREE: colorsAttainment[3],
+        FOUR: colorsAttainment[4],
+        FIVE: colorsAttainment[5],
         defaultFill: 'grey'
       },
       geographyConfig: {
@@ -124,7 +144,11 @@ function main() {
           if (!data){
             return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
           };
-          var attainment = data[year.value()]['years of education total'];
+          if (CURRENT_YEAR === 0) {
+            var attainment = data[year.value()]['years of education total'];
+          } else {
+            var attainment = data[CURRENT_YEAR]['years of education total'];
+          };
           if (attainment) {
             return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + attainment + ' years';
           };
@@ -134,14 +158,17 @@ function main() {
     d5.select('#figureThree')
       .selectAll('path')
       .on('click', function(d) {
+        barChart.attr('height', heights.svgFour)
+                .attr('width', widths.svgFour);
+        multLines.attr('height', heights.svgFour)
+                 .attr('width', widths.svgFour);
+        var element = document.getElementById('figureFour');
+        element.scrollIntoView({behavior: 'smooth'});
         if (!dataAttainment[d.id]) {
-          if (CURRENT_YEAR === 0) {
-            noBars(d, barChart, margin, heights.svgFour,
-                   widths.svgFour);
-          } else {
-            noBars(d, barChart, margin, heights.svgFour,
-                   widths.svgFour);
-          }
+          noBars(d, barChart, margin, heights.svgFour,
+                 widths.svgFour);
+          noLines(d, multLines, margin, heights.svgFour,
+                  widths.svgFour)
         } else {
           var barInfo = {chart: barChart, data: dataAttainment, country: d,
                             year: year, margin: margin, width: widths.svgFour,
@@ -157,19 +184,23 @@ function main() {
         slider(dataAttainment, barInfo);
       });
 
-    // mapAttainment.legend({
-    //   defaultFillName: 'No data',
-    //   labels: {
-    //     ZERO: '0-10',
-    //     ONE: '11-20',
-    //     TWO: '21-30',
-    //     THREE: '31-40',
-    //     FOUR: '41-50',
-    //     FIVE: '51-60',
-    //     SIX:  '70 - 80',
-    //     SEVEN: '81-90',
-    //     EIGHT: '90-100',
-    //   }
+    mapAttainment.legend({
+      defaultFillName: 'No data',
+      labels: {
+        ZERO: '<2',
+        ONE: '2-4',
+        TWO: '4-6',
+        THREE: '4-8',
+        FOUR: '8-10',
+        FIVE: '10-12',
+        SIX:  '>12',
+      },
+    });
+    d5.selectAll('#figureThree .datamaps-legend dd')
+      .on('mouseover', function(d, i) {console.log(i);})
+
+
+
     // });
     // d5.select('#figureThree')
     //   .append('div')
@@ -244,7 +275,11 @@ function linechart(data_dict, margin, width, height){
     return {"y": data_dict[years[i]]};
   });
   var xAxisLine = d5.axisBottom()
-                    .scale(xScaleLine),
+                    .scale(xScaleLine)
+                    .ticks(12)
+                    .tickFormat(function(d) {
+                      return d;
+                    }),
       yAxisLine = d5.axisLeft()
                     .scale(yScaleLine);
 
@@ -258,6 +293,26 @@ function linechart(data_dict, margin, width, height){
            .attr('id', 'yLine')
            .attr('transform', 'translate(' + margin.left + ', 0)')
            .call(yAxisLine);
+ // gridlines in y axis function
+ function make_y_gridlines() {
+     return d5.axisLeft(yScaleLine)
+         .ticks(10)
+ };
+
+ // add the Y gridlines
+ lineWorld.append("g")
+          .attr("class", "grid")
+          .attr('transform', 'translate(' + margin.left + ',0)')
+          .style('z-index', 1)
+          .style('opacity', 0.5);
+
+ lineWorld.select('.grid')
+          .transition()
+          .style('z-index', 1)
+            .call(make_y_gridlines()
+              .tickSize(-width + margin.left + margin.right)
+              .tickFormat("")
+            );
 
   lineWorld.append('text')
            .attr('class', 'figTitle')
@@ -342,13 +397,14 @@ function slider(data_dict, barInfo) {
   d5.select('#sliderAttainment')
     .remove();
   var years = new Array,
+      ticks = new Array,
       dataYears = Object.keys(data_dict['AUS']);
   for (var i = 0; i < dataYears.length; i++) {
     if (dataYears[i] != 'fillKey') {
       years[i] = Number(dataYears[i]);
+      ticks[i] = dataYears[i];
     };
   };
-
   barInfo = barInfo || 0;
 
   if (barInfo != 0){
@@ -363,17 +419,20 @@ function slider(data_dict, barInfo) {
     .max(d5.max(years))
     .step(5)
     .width(800)
-    .tickValues(years)
+    .ticks(29)
+    .tickFormat(function(d, i) {
+      return [years[i]];
+    })
     .default(CURRENT_YEAR)
     .on('onchange', function(val) {
       d5.select('#figureThreeName')
         .transition()
-          .text('Figure 3: Education attainment in the year ' + val)
+          .text('Figure 3: Education attainment in the year ' + val);
       var current = updateMap(data_dict, sliderTime);
       CURRENT_YEAR = current.value();
       if (barInfo != 0) {
         updateBar(sliderTime, barInfo);
-      }
+      };
     });
 
     var gTime = d5
@@ -400,7 +459,7 @@ function updateMap(data_dict, sliderTime) {
   d5.select('#figureThree')
     .selectAll('path')
     .style('fill', function(d) {
-      return colorBlue(data_dict, d.id, year)
+      return colorFill(data_dict, d.id, year)
     });
 
   return sliderTime
@@ -415,7 +474,8 @@ function d3Stuff() {
          .attr('id', 'pageTitle')
          .text('Worldwide education throughout the years');
   wrapper.append('div')
-         .attr('class', 'content');
+         .attr('class', 'content')
+         .attr('id', 'content');
   wrapper.append('div')
          .attr('class', 'tableOfContents');
 
@@ -556,11 +616,6 @@ function d3Stuff() {
          .attr('class', 'col-sm')
             .append('div')
             .attr('id', 'slider-time');
-  content.append('div')
-         .attr('class', 'text')
-         .attr('id', 'attainmentExplain')
-            .append('p')
-            .text('Uitleg over de figuren hierboven en hieronder.');
 
   content.append('div')
          .attr('class', 'figure')
@@ -571,6 +626,15 @@ function d3Stuff() {
                     .append('a')
                     .attr('href', '#figureFour')
                     .text('Figure 4: Types of education');
+  content.append('div')
+         .attr('class', 'figure')
+         .attr('id', 'figureFive');
+  tableOfContents.select('#contents')
+                 .append('li')
+                 .attr('class', 'subsection')
+                   .append('a')
+                   .attr('href', '#figureFive')
+                   .text('Figure 5: Educational level, 1870 - 2010');
 
   content.append('div')
          .attr('class', 'text')
@@ -615,11 +679,12 @@ function fillkeysAttainment(data) {
 
   var countries = Object.keys(data);
   var fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
-                  'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
+                  'FIVE', 'SIX'];
 
   for (var i = 0; i < countries.length; i++) {
     var attainment = data[countries[i]]['1870']['years of education total'];
-    attainment = Math.round(attainment / 14 * 8 + 0.5);
+    attainment = Math.round(attainment / 2 - 1);
+    if (attainment < 0) { attainment = 0; };
     data[countries[i]]['fillKey'] = fillKeys[attainment];
   };
 
@@ -631,11 +696,11 @@ function fillkeysLiteracy(data) {
 
   var countries = Object.keys(data);
   var fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
-                  'FIVE', 'SIX', 'SEVEN', 'EIGHT'];
+                  'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE'];
 
   for (var i = 0; i < countries.length; i++) {
     var literacy = data[countries[i]]['Literacy rate (%)'];
-    literacy = Math.round(literacy / 10 - 2);
+    literacy = Math.round(literacy / 10 - 1);
     data[countries[i]]['fillKey'] = fillKeys[literacy];
   };
 
@@ -643,15 +708,16 @@ function fillkeysLiteracy(data) {
 };
 
 
-function colorBlue(data, id, year) {
+function colorFill(data, id, year) {
 
   var info = data[id];
-  var blues = d5.schemeBlues[9];
+  var colors = d5.schemeRdYlGn[7];
 
   if (info) {
     var attainment = data[id][year]['years of education total'];
-    attainment = Math.round(attainment / 14 * 8 + 0.5);
-    return blues[attainment];
+    attainment = Math.round(attainment / 2 - 1);
+    if (attainment < 0) { attainment = 0; };
+    return colors[attainment];
   } else {
     return 'grey';
   };
@@ -662,14 +728,11 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
 
   d5.select('#noData')
     .remove();
+
   transDuration = transDuration || 750;
-  if (data[country.id] == undefined) {
-    console.log('no data!!');
-    return;
-  };
 
   var info = data[country.id][year],
-      eduKeys = ['uneducated', 'primary', 'secondary', 'tertiary'],
+      eduKeys = ['uneducated', 'primary', 'secondary', 'tertiary'], // miss niet hardcodden
       dict = new Object,
       values = new Array;
   for (var i = 0; i < eduKeys.length; i++) {
@@ -692,10 +755,12 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
 
   barChart.select('#xBar')
           .transition()
-              .call(axes.x);
+            .style('opacity', 1)
+            .call(axes.x);
   barChart.select('#yBar')
           .transition()
-              .call(axes.y);
+            .style('opacity', 1)
+            .call(axes.y);
 
   // gridlines in y axis function
   function make_y_gridlines() {
@@ -707,10 +772,27 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
   barChart.append("g")
           .attr("class", "grid")
           .attr('transform', 'translate(' + margin.left + ',0)')
+          .style('z-index', 1)
+          .style('opacity', 0.5);
 
+  var barWidth = 40;
   barChart.select('.grid')
           .transition()
-             
+          .style('z-index', 1)
+          .style('opacity', 0.5)
+            .call(make_y_gridlines()
+              .tickSize(-width + margin.right + margin.left - barWidth)
+              .tickFormat("")
+            );
+
+ // var barTip = d5.tip()
+ //   .attr('class', 'd3-tip')
+ //   .attr('id', 'barTip')
+ //   .offset([-10, 0])
+ //   .html(function(d, i) {
+ //     return "<span> " + d + "%</span>"
+ //   });
+ //  barChart.call(barTip);
 
   var bar = barChart.selectAll('rect')
                     .data(values);
@@ -722,6 +804,8 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
        return scales.x(i);
      })
      .attr('y', height - margin.bottom)
+     // .on('mouseover', barTip.show)
+     // .on('mouseout', barTip.hide)
      .merge(bar)
      .transition(d5.easeQuad)
      .duration(transDuration)
@@ -732,17 +816,14 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
      .attr('height', function(d) {
        return height - scales.y(d) - margin.bottom;
      })
-     .style('z-index', 10);
-  bar.exit()
-     .transition()
-     .duration(transDuration)
-     .attr('height', 0)
-     .attr('y', height - margin.bottom);
+     .style('z-index', 1000);
+
   return;
 };
 
 
 function updateBar(sliderTime, barInfo) {
+
   var year = CURRENT_YEAR,
       transDuration = 10;
   barchart(barInfo.chart, barInfo.data, barInfo.country, year, barInfo.margin,
@@ -789,13 +870,13 @@ function axesText(barChart, scales, margin, height, width, country, year) {
           .attr('class', 'figTitle')
           .attr('id', 'barTitle')
           .attr('text-anchor', 'middle')
-          .attr('x', scales.x(scales.x.domain()[1]/2))
+          .attr('x', scales.x(scales.x.domain()[1]/2) + margin.left / 2)
           .attr('y', margin.axisText);
   barChart.append('text')
           .attr('class', 'axeTitle')
           .attr('id', 'xTitle')
           .attr('text-anchor', 'middle')
-          .attr('x', scales.x(scales.x.domain()[1]/2))
+          .attr('x', scales.x(scales.x.domain()[1]/2) + margin.left / 2)
           .attr('y', height - margin.axisText);
   barChart.append('text')
           .attr('class', 'axeTitle')
@@ -838,27 +919,27 @@ function noBars(country, barChart, margin, height, width) {
   barChart.selectAll('.yAxis')
           .transition()
             .duration(transDuration)
-            .remove();
+            .style('opacity', 0)
   barChart.selectAll('.xAxis')
           .transition()
             .duration(transDuration)
-            .remove();
+            .style('opacity', 0)
   barChart.selectAll('.axeTitle')
           .transition()
             .duration(transDuration)
-            .remove();
+            .style('opacity', 0)
   barChart.selectAll('.grid')
           .transition()
             .duration(transDuration)
-            .remove()
+            .style('opacity', 0)
 
   if (barChart.select('.figTitle').empty()) {
     barChart.append('text')
             .attr('class', 'figTitle')
             .attr('id', 'barTitle')
             .attr('text-anchor', 'middle')
-            .attr('x', width/2)
-            .attr('y', margin.title);
+            .attr('x', width/2 + margin.left/2)
+            .attr('y', margin.axisText);
   };
   barChart.select('.figTitle')
           .transition()
@@ -867,12 +948,65 @@ function noBars(country, barChart, margin, height, width) {
   barChart.append('text')
           .attr('id', 'noData')
           .attr('text-anchor', 'middle')
-          .attr('x', width/2)
+          .attr('x', width/2 + margin.left/2)
           .attr('y', height/2);
   barChart.select('#noData')
           .transition()
             .delay(transDuration + 50)
             .text('No data available');
+};
+
+
+function multipleLine(country, margin, height, width) {};
+
+
+function noLines(country, multLines, margin, height, width) {
+
+  var transDuration = 300;
+
+  multLines.selectAll('rect')
+           .transition()
+             .duration(transDuration)
+             .attr('height', 0)
+             .attr('y', height - margin.bottom);
+  multLines.selectAll('.yAxis')
+           .transition()
+             .duration(transDuration)
+             .style('opacity', 0);
+  multLines.selectAll('.xAxis')
+           .transition()
+             .duration(transDuration)
+             .style('opacity', 0);
+  multLines.selectAll('.axeTitle')
+           .transition()
+             .duration(transDuration)
+             .style('opacity', 0);
+  multLines.selectAll('.grid')
+           .transition()
+             .duration(transDuration)
+             .style('opacity', 0);
+
+  if (multLines.select('.figTitle').empty()) {
+    multLines.append('text')
+             .attr('class', 'figTitle')
+             .attr('id', 'barTitle')
+             .attr('text-anchor', 'middle')
+             .attr('x', width/2 + margin.left/2)
+             .attr('y', margin.axisText);
+  };
+  multLines.select('.figTitle')
+           .transition()
+             .text(country.properties.name);
+
+  multLines.append('text')
+           .attr('id', 'noData')
+           .attr('text-anchor', 'middle')
+           .attr('x', width/2 + margin.left/2)
+           .attr('y', height/2);
+  multLines.select('#noData')
+           .transition()
+             .delay(transDuration + 50)
+             .text('No data available');
 };
 
 
