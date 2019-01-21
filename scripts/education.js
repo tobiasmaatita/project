@@ -16,7 +16,8 @@ function main() {
     svgOne: 600,
     svgTwo: 600,
     svgThree: 600,
-    svgFour: 400
+    svgFour: 400,
+    svgFive: 550
   },
       heights = {
     svgOne: 450,
@@ -44,8 +45,6 @@ function main() {
     dataLiteracyCountry = addCountryCodes(dataLiteracyCountry, countryCodes);
     dataAttainment = fillkeysAttainment(dataAttainment, allCountriesAttainment);
     dataLiteracyCountry = fillkeysLiteracy(dataLiteracyCountry, allCountriesWorldLiteracy);
-
-    console.log(dataAttainment);
 
     var colors = d5.schemeBrBG[10];
     // literacy map
@@ -161,27 +160,34 @@ function main() {
         barChart.attr('height', heights.svgFour)
                 .attr('width', widths.svgFour);
         multLines.attr('height', heights.svgFour)
-                 .attr('width', widths.svgFour);
+                 .attr('width', widths.svgFive);
         var element = document.getElementById('figureFour');
         element.scrollIntoView({behavior: 'smooth'});
         if (!dataAttainment[d.id]) {
           noBars(d, barChart, margin, heights.svgFour,
                  widths.svgFour);
           noLines(d, multLines, margin, heights.svgFour,
-                  widths.svgFour)
+                  widths.svgFive)
         } else {
           var barInfo = {chart: barChart, data: dataAttainment, country: d,
-                            year: year, margin: margin, width: widths.svgFour,
-                            height: heights.svgFour};
+                         year: year, margin: margin, width: widths.svgFour,
+                         height: heights.svgFour};
+          var lineInfo = {chart: multLines, data: dataAttainment, country: d,
+                          year: year, margin: margin, width: widths.svgFour,
+                          height: heights.svgFive};
           if (CURRENT_YEAR === 0) {
             barchart(barChart, dataAttainment, d, year.value(),
                      margin, heights.svgFour, widths.svgFour);
+            multipleLine(multLines, dataAttainment, d, year.value(),
+                         margin, heights.svgFour, widths.svgFive);
           } else {
             barchart(barChart, dataAttainment, d, CURRENT_YEAR,
                      margin, heights.svgFour, widths.svgFour);
+            multipleLine(multLines, dataAttainment, d, CURRENT_YEAR,
+                         margin, heights.svgFour, widths.svgFive);
           };
         }
-        slider(dataAttainment, barInfo);
+        slider(dataAttainment, barInfo, lineInfo);
       });
 
     mapAttainment.legend({
@@ -347,7 +353,7 @@ function linechart(data_dict, margin, width, height){
              data_dict[years[i]]+ " %" + "</span>";
     });
   lineWorld.call(lineTip);
-
+  console.log(dataset);
   var path = lineWorld.append('path')
                       .datum(dataset)
                       .attr('class', 'line')
@@ -392,7 +398,7 @@ function linechart(data_dict, margin, width, height){
 };
 
 
-function slider(data_dict, barInfo) {
+function slider(data_dict, barInfo, lineInfo) {
 
   d5.select('#sliderAttainment')
     .remove();
@@ -406,6 +412,7 @@ function slider(data_dict, barInfo) {
     };
   };
   barInfo = barInfo || 0;
+  lineInfo = lineInfo || 0;
 
   if (barInfo != 0){
     var year = barInfo.year.value();
@@ -432,6 +439,7 @@ function slider(data_dict, barInfo) {
       CURRENT_YEAR = current.value();
       if (barInfo != 0) {
         updateBar(sliderTime, barInfo);
+        updateLines(sliderTime, lineInfo);
       };
     });
 
@@ -629,12 +637,6 @@ function d3Stuff() {
   content.append('div')
          .attr('class', 'figure')
          .attr('id', 'figureFive');
-  tableOfContents.select('#contents')
-                 .append('li')
-                 .attr('class', 'subsection')
-                   .append('a')
-                   .attr('href', '#figureFive')
-                   .text('Figure 5: Educational level, 1870 - 2010');
 
   content.append('div')
          .attr('class', 'text')
@@ -919,19 +921,19 @@ function noBars(country, barChart, margin, height, width) {
   barChart.selectAll('.yAxis')
           .transition()
             .duration(transDuration)
-            .style('opacity', 0)
+            .style('opacity', 0);
   barChart.selectAll('.xAxis')
           .transition()
             .duration(transDuration)
-            .style('opacity', 0)
+            .style('opacity', 0);
   barChart.selectAll('.axeTitle')
           .transition()
             .duration(transDuration)
-            .style('opacity', 0)
+            .style('opacity', 0);
   barChart.selectAll('.grid')
           .transition()
             .duration(transDuration)
-            .style('opacity', 0)
+            .style('opacity', 0);
 
   if (barChart.select('.figTitle').empty()) {
     barChart.append('text')
@@ -957,18 +959,179 @@ function noBars(country, barChart, margin, height, width) {
 };
 
 
-function multipleLine(country, margin, height, width) {};
+function multipleLine(multLines, data, country, year, margin, height, width, transDuration) {
+
+  d5.selectAll('#noData')
+    .remove();
+  transDuration = transDuration || 750;
+
+  var dataNeeded = data[country.id];
+  delete dataNeeded.fillKey;
+  var yearsData = Object.keys(dataNeeded),
+      years = new Array;
+
+  for (var i = 0; i < yearsData.length; i++) {
+    years[i] = Number(yearsData[i]);
+  };
+
+  var dataset = new Array;
+
+  for (var i = 0; i < years.length; i++) {
+    var info = dataNeeded[years[i]],
+        datapoint = {};
+    datapoint.year = years[i];
+    datapoint.uneducated = info.uneducated;
+    datapoint.primary = info.primary;
+    datapoint.secondary = info.secondary;
+    datapoint.tertiary = info.tertiary;
+    dataset.push(datapoint);
+  };
+
+  var xScaleLine = d5.scaleLinear()
+                     .domain([d5.min(years), d5.max(years)])
+                     .range([margin.left, width - margin.right]),
+      yScaleLine = d5.scaleLinear()
+                     .domain([0, 100])
+                     .range([height - margin.bottom, margin.top]);
+  var lineUned = d5.line()
+                   .x(function(d, i) {
+                     console.log(years[i]);
+                     return xScaleLine(years[i]);
+                   })
+                   .y(function(d){
+                     console.log(d);
+                     return yScaleLine(d.uneducated);
+                   })
+                   .curve(d5.curveMonotoneX),
+      linePrim = d5.line()
+                   .x(function(d, i) {
+                     return xScaleLine(years[i]);
+                   })
+                   .y(function(d) {
+                     return yScaleLine(d.primary);
+                   })
+                   .curve(d5.curveMonotoneX),
+      lineSec = d5.line()
+                  .x(function(d, i) {
+                    return xScaleLine(years[i]);
+                  })
+                  .y(function(d) {
+                    return yScaleLine(d.secondary);
+                  })
+                  .curve(d5.curveMonotoneX),
+      lineTert = d5.line()
+                   .x(function(d, i) {
+                     return xScaleLine(years[i]);
+                   })
+                   .y(function(d) {
+                     return yScaleLine(d.tertiary);
+                   })
+                   .curve(d5.curveMonotoneX);
+
+  var xAxisLine = d5.axisBottom()
+                    .scale(xScaleLine)
+                    .ticks(12)
+                    .tickFormat(function(d) {
+                      return d;
+                    }),
+      yAxisLine = d5.axisLeft()
+                    .scale(yScaleLine);
+
+  multLines.append('g')
+           .attr('class', 'xAxis')
+           .attr('id', 'xMult')
+           .attr('transform', 'translate(0,' + (height - margin.bottom) + ')')
+           .call(xAxisLine);
+  multLines.append('g')
+           .attr('class', 'yAxis')
+           .attr('id', 'yMult')
+           .attr('transform', 'translate(' + margin.left + ', 0)')
+           .call(yAxisLine);
+
+ function make_y_gridlines() {
+     return d5.axisLeft(yScaleLine)
+         .ticks(10)
+ };
+
+ // add the Y gridlines
+ multLines.append("g")
+          .attr("class", "grid")
+          .attr('transform', 'translate(' + margin.left + ',0)')
+          .style('z-index', 1)
+          .style('opacity', 0.5);
+
+ multLines.select('.grid')
+          .transition()
+          .style('z-index', 1)
+            .call(make_y_gridlines()
+              .tickSize(-width + margin.left + margin.right)
+              .tickFormat("")
+            );
+
+  multLines.append('text')
+           .attr('class', 'figTitle')
+           .attr('id', 'multTitle')
+           .attr('text-anchor', 'middle')
+           .attr('y', margin.top - 10)
+           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
+                                  + xScaleLine.domain()[0]))
+           .text('Highest educational level, 1870-2010');
+  multLines.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'xMult')
+           .attr('text-anchor', 'middle')
+           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
+                                  + xScaleLine.domain()[0]))
+           .attr('y', height - margin.axisText)
+           .text('Year');
+  multLines.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'yMult')
+           .attr('text-anchor', 'middle')
+           .attr('x', -yScaleLine((yScaleLine.domain()[1])/2))
+           .attr('y', margin.axisText + 5)
+           .attr('transform', 'rotate(-90)')
+           .text('Rate (%)');
+
+  multLines.append('path')
+           .datum(dataset)
+           .attr('class', 'line')
+           .attr('id', 'lineUned')
+           .attr('d', lineUned);
+  multLines.append('path')
+           .datum(dataset)
+           .attr('class', 'line')
+           .attr('id', 'linePrim')
+           .style('stroke', 'red')
+           .attr('d', linePrim);
+  multLines.append('path')
+           .datum(dataset)
+           .attr('class', 'line')
+           .attr('id', 'lineSec')
+           .style('stroke', 'blue')
+           .attr('d', lineSec);
+  multLines.append('path')
+           .datum(dataset)
+           .attr('class', 'line')
+           .attr('id', 'lineTert')
+           .style('stroke', 'green')
+           .attr('d', lineTert);
+
+
+
+
+  return;
+};
 
 
 function noLines(country, multLines, margin, height, width) {
 
   var transDuration = 300;
 
-  multLines.selectAll('rect')
+  multLines.selectAll('path')
            .transition()
              .duration(transDuration)
-             .attr('height', 0)
-             .attr('y', height - margin.bottom);
+             .remove()
   multLines.selectAll('.yAxis')
            .transition()
              .duration(transDuration)
@@ -1009,6 +1172,10 @@ function noLines(country, multLines, margin, height, width) {
              .text('No data available');
 };
 
+
+function updateLines(sliderTime, lineInfo) {
+  return;
+};
 
 window.onload = function(){
   main();

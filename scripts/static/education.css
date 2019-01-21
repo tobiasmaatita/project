@@ -221,7 +221,7 @@ li a
 {
   /* border: 1px solid purple; */
   display: inline-block;
-  width: 50%;
+  width: 40%;
   height: auto;
   position: relative;
   margin-top: 15px;
@@ -242,7 +242,13 @@ li a
   display: inline-block;
   width: 50%;
   height: auto;
-  left: 50%;
+  left: 20%;
+  fill: none;
+}
+
+#figureFive .line
+{
+  stroke-width: 3px;
 }
 
 #slider-time
