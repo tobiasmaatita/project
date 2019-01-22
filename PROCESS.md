@@ -47,4 +47,7 @@ Trying to fix legends. Used the legend plugin from the datamap, but I did not li
 
 ## Day 11 (Mon)
 Today, I strive to get a legend on at least one map. Added a line graph instead of a scatterplot. The line graph
-shows four levels of education and which share of the population has achieved a certain level. This is plotted throughout the years. **still to be fixed:** the words 'no data' are not always centered in the line graph div. 
+shows four levels of education and which share of the population has achieved a certain level. This is plotted throughout the years. **still to be fixed:** the words 'no data' are not always centered in the line graph div.
+
+## Day 12 (Tue)
+Added a basic legend, but it is not yet exactly what i wanted. 
