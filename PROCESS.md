@@ -50,4 +50,4 @@ Today, I strive to get a legend on at least one map. Added a line graph instead 
 shows four levels of education and which share of the population has achieved a certain level. This is plotted throughout the years. **still to be fixed:** the words 'no data' are not always centered in the line graph div.
 
 ## Day 12 (Tue)
-Added a basic legend, but it is not yet exactly what i wanted. 
+Added a basic legend, but it is not yet exactly what i wanted. Added interactivity between the multiple line chart and the bar chart. This interactivity currently only works in one way: actions on the bar chart influence the line graph. I want to have a little bit of interactivity the other way around. Tomorrow, I will have to fix the final bugs such as text alignment and the transition of the titles in the line chart. Also, the colors of the highlight in the second datamap need to be changed: at the moment, this color is the same color as a color used in the map to indicate a certain degree of educational attainment. 
