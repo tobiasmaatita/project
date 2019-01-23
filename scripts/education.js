@@ -4,6 +4,7 @@ function main() {
   CURRENT_YEAR = 0;
   CLICKED = false;
   SELECTED = [];
+
   var margin = {
     top: 30,
     left: 60,
@@ -27,6 +28,8 @@ function main() {
     svgThree: 600,
     svgFour: 450
   };
+
+  // data paths
   var educationAttainment = 'https://raw.githubusercontent.com/tobiasmaatita/project/master/Data/education_attainment.json',
       literacyCountry = 'https://raw.githubusercontent.com/tobiasmaatita/project/master/Data/literacy_rate_by_country.json',
       worldLiteracyData = 'https://raw.githubusercontent.com/tobiasmaatita/project/master/Data/literate_and_illiterate_world_population.json',
@@ -43,186 +46,205 @@ function main() {
         allCountriesWorldLiteracy = Object.keys(dataLiteracyCountry),
         yearsLiteracyWorld = Object.keys(dataLiteracyWorld);
 
+    // post-hoc, final preprocessing of the data. The converter did not append
+    //  the country codes and the fillkeys.
     dataAttainment = addCountryCodes(dataAttainment, countryCodes);
-    dataLiteracyCountry = addCountryCodes(dataLiteracyCountry, countryCodes);
     dataAttainment = fillkeysAttainment(dataAttainment, allCountriesAttainment);
+    dataLiteracyCountry = addCountryCodes(dataLiteracyCountry, countryCodes);
     dataLiteracyCountry = fillkeysLiteracy(dataLiteracyCountry, allCountriesWorldLiteracy);
 
-    var colors = d5.schemeBrBG[10];
-    // literacy map
-    var mapLiteracy = new Datamap({
-      scope: 'world',
-      element: document.getElementById('figureTwo'),
-      projection: 'mercator',
-      responsive: true,
-      data: dataLiteracyCountry,
-      fills: {
-        ZERO: colors[0],
-        ONE: colors[1],
-        TWO: colors[2],
-        THREE: colors[3],
-        FOUR: colors[4],
-        FIVE: colors[5],
-        SIX:  colors[6],
-        SEVEN: colors[7],
-        EIGHT: colors[8],
-        NINE: colors[9],
-        defaultFill: 'grey'
-      },
-      geographyConfig: {
-        borderWidth: 1,
-        highlightBorderColor: 'yellow',
-        highlightFillColor: 'orange',
-        highlightBorderWidth: 2,
-        popupTemplate: function(geography, data) {
-          if (!data){
-            return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
-          };
-          var literacy = data['Literacy rate (%)'],
-              year = data['Year'];
-          if (data) {
-            return '<div class="hoverinfo">' + '<strong>'+ geography.properties.name + '</strong><br>' + literacy + '% in ' + year;
-          };
-        }
-      }
-    });
-    mapLiteracy.legend({
-      defaultFillName: 'No data',
-        labels: {
-          ZERO: '<10%',
-          ONE: '10-20%',
-          TWO: '20-30%',
-          THREE: '30-40%',
-          FOUR: '40-50%',
-          FIVE: '50-60%',
-          SIX: '60-70%',
-          SEVEN: '70-80%',
-          EIGHT: '80-90%',
-          NINE: '90-100%',
-        }});
-
-    // literacy line
+    // make all visualisation
+    literacyMap(dataLiteracyCountry);
     linechart(dataLiteracyWorld, margin, widths.svgOne, heights.svgOne);
+    attainmentMap(dataAttainment, margin, heights, widths);
 
-    var colorsAttainment = d5.schemeRdYlGn[7];
-    var year = slider(dataAttainment);
-
-    var barChart = d5.select('#figureFour')
-                     .append('svg')
-                     .attr('class', 'barChart')
-                     .attr('id', 'attainmentChart')
-                     .attr('height', 0)
-                     .attr('width', 0)
-                     .attr('fill', 'teal')
-                     .attr('stroke', 'black');
-    var multLines = d5.select('#figureFive')
-                      .append('svg')
-                      .attr('class', 'linechart')
-                      .attr('id', 'multipleLines')
-                      .attr('height', 0)
-                      .attr('width', 0)
-                      .attr('stroke', 'black');
-
-    // attainment map
-    var mapAttainment = new Datamap({
-      scope: 'world',
-      element: document.getElementById('figureThree'),
-      projection: 'mercator',
-      responsive: true,
-      data: dataAttainment,
-      fills: {
-        ZERO: colorsAttainment[0],
-        ONE: colorsAttainment[1],
-        TWO: colorsAttainment[2],
-        THREE: colorsAttainment[3],
-        FOUR: colorsAttainment[4],
-        FIVE: colorsAttainment[5],
-        defaultFill: 'grey'
-      },
-      geographyConfig: {
-        highlightBorderColor: 'green',
-        popupTemplate: function(geography, data) {
-          if (!data){
-            return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
-          };
-          if (CURRENT_YEAR === 0) {
-            var attainment = data[year.value()]['years of education total'];
-          } else {
-            var attainment = data[CURRENT_YEAR]['years of education total'];
-          };
-          if (attainment) {
-            return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + attainment + ' years';
-          };
-        }
-      }
-    });
-
-    var linescales = new Object;
-
-    d5.select('#figureThree')
-      .selectAll('path')
-      .on('click', function(d) {
-        barChart.attr('height', heights.svgFour)
-                .attr('width', widths.svgFour);
-        multLines.attr('height', heights.svgFour)
-                 .attr('width', widths.svgFive);
-        var element = document.getElementById('figureFour');
-        element.scrollIntoView({behavior: 'smooth'});
-        if (!dataAttainment[d.id]) {
-          noBars(d, barChart, margin, heights.svgFour,
-                 widths.svgFour);
-          noLines(d, multLines, margin, heights.svgFour,
-                  widths.svgFive)
-        } else {
-          var barInfo = {chart: barChart, data: dataAttainment, country: d,
-                         year: year, margin: margin, width: widths.svgFour,
-                         height: heights.svgFour};
-          var lineInfo = {chart: multLines, data: dataAttainment, country: d,
-                          year: year, margin: margin, width: widths.svgFive,
-                          height: heights.svgFour};
-          if (CURRENT_YEAR === 0) {
-            barchart(barChart, dataAttainment, d, year.value(),
-                     margin, heights.svgFour, widths.svgFour);
-            linescales = multipleLine(multLines, dataAttainment, d, year.value(),
-                                      margin, heights.svgFour, widths.svgFive);
-          } else {
-            barchart(barChart, dataAttainment, d, CURRENT_YEAR,
-                     margin, heights.svgFour, widths.svgFour);
-            linescales = multipleLine(multLines, dataAttainment, d, CURRENT_YEAR,
-                                      margin, heights.svgFour, widths.svgFive);
-          };
-        }
-        slider(dataAttainment, barInfo, lineInfo, linescales);
-        d5.selectAll('#sliderAttainment text')
-          .style('opacity', 1);
-      });
-
-    mapAttainment.legend({
-      defaultFillName: 'No data',
-      labels: {
-        ZERO: '<2',
-        ONE: '2-4',
-        TWO: '4-6',
-        THREE: '4-8',
-        FOUR: '8-10',
-        FIVE: '10-12',
-        SIX:  '>12',
-      },
-    });
-    d5.selectAll('#figureThree .datamaps-legend dd')
-      .on('mouseover', function(d, i) {console.log(i);})
-
-    d5.select('#nameFigThree')
-      .append('text')
-      .attr('class', 'figureName')
-      .attr('id', 'figureThreeName')
-      .text('Figure 3: Education attainment in the year 1870');
-
-
-  // end promise
+  return;
   });
-// end main function
+
+return;
 };
+
+function literacyMap(dataLiteracyCountry) {
+
+  var colors = d5.schemeBrBG[10];
+  var mapLiteracy = new Datamap({
+    scope: 'world',
+    element: document.getElementById('figureTwo'),
+    projection: 'mercator',
+    responsive: true,
+    data: dataLiteracyCountry,
+    fills: {
+      ZERO: colors[0],
+      ONE: colors[1],
+      TWO: colors[2],
+      THREE: colors[3],
+      FOUR: colors[4],
+      FIVE: colors[5],
+      SIX:  colors[6],
+      SEVEN: colors[7],
+      EIGHT: colors[8],
+      NINE: colors[9],
+      defaultFill: 'grey'
+    },
+    geographyConfig: {
+      borderWidth: 1,
+      highlightBorderColor: 'yellow',
+      highlightFillColor: 'orange',
+      highlightBorderWidth: 2,
+      popupTemplate: function(geography, data) {
+        if (!data){
+          return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
+        };
+        var literacy = data['Literacy rate (%)'],
+            year = data['Year'];
+        if (data) {
+          return '<div class="hoverinfo">' + '<strong>'+ geography.properties.name + '</strong><br>' + literacy + '% in ' + year;
+        };
+      }
+    }
+  });
+  mapLiteracy.legend({
+    defaultFillName: 'No data',
+      labels: {
+        ZERO: '<10%',
+        ONE: '10-20%',
+        TWO: '20-30%',
+        THREE: '30-40%',
+        FOUR: '40-50%',
+        FIVE: '50-60%',
+        SIX: '60-70%',
+        SEVEN: '70-80%',
+        EIGHT: '80-90%',
+        NINE: '90-100%',
+      }});
+};
+
+
+function attainmentMap(dataAttainment, margin, heights, widths) {
+// Make a map illustrating the education attainment throughout the years. Use
+//  data on attainment (dataAttainment).
+
+  // ready colors and slider
+  var colorsAttainment = d5.schemeRdYlGn[7];
+  var year = slider(dataAttainment);
+
+  var barChart = d5.select('#figureFour')
+                   .append('svg')
+                   .attr('class', 'barChart')
+                   .attr('id', 'attainmentChart')
+                   .attr('height', 0)
+                   .attr('width', 0)
+                   .attr('fill', 'teal')
+                   .attr('stroke', 'black');
+  var multLines = d5.select('#figureFive')
+                    .append('svg')
+                    .attr('class', 'linechart')
+                    .attr('id', 'multipleLines')
+                    .attr('height', 0)
+                    .attr('width', 0)
+                    .attr('stroke', 'black');
+
+  // attainment map
+  var mapAttainment = new Datamap({
+    scope: 'world',
+    element: document.getElementById('figureThree'),
+    projection: 'mercator',
+    responsive: true,
+    data: dataAttainment,
+    fills: {
+      ZERO: colorsAttainment[0],
+      ONE: colorsAttainment[1],
+      TWO: colorsAttainment[2],
+      THREE: colorsAttainment[3],
+      FOUR: colorsAttainment[4],
+      FIVE: colorsAttainment[5],
+      defaultFill: 'grey'
+    },
+    geographyConfig: {
+      highlightBorderColor: 'green',
+      highlightFillColor: 'blue',
+      popupTemplate: function(geography, data) {
+        if (!data){
+          return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + 'No data';
+        };
+        if (CURRENT_YEAR === 0) {
+          var attainment = data[year.value()]['years of education total'];
+        } else {
+          var attainment = data[CURRENT_YEAR]['years of education total'];
+        };
+        if (attainment) {
+          return '<div class="hoverinfo">' + '<strong>' + geography.properties.name + '</strong><br>' + attainment + ' years';
+        };
+      }
+    }
+  });
+
+  var linescales = new Object;
+
+  d5.select('#figureThree')
+    .selectAll('path')
+    .on('click', function(d) {
+      barChart.attr('height', heights.svgFour)
+              .attr('width', widths.svgFour);
+      multLines.attr('height', heights.svgFour)
+               .attr('width', widths.svgFive);
+
+      var element = document.getElementById('figureFour');
+      element.scrollIntoView({behavior: 'smooth'});
+
+      if (!dataAttainment[d.id]) {
+        noBars(d, barChart, margin, heights.svgFour,
+               widths.svgFour);
+        noLines(d, multLines, margin, heights.svgFour,
+                widths.svgFive)
+      } else {
+        var barInfo = {chart: barChart, data: dataAttainment, country: d,
+                       year: year, margin: margin, width: widths.svgFour,
+                       height: heights.svgFour};
+        var lineInfo = {chart: multLines, data: dataAttainment, country: d,
+                        year: year, margin: margin, width: widths.svgFive,
+                        height: heights.svgFour};
+
+        if (CURRENT_YEAR === 0) {
+          barchart(barChart, dataAttainment, d, year.value(),
+                   margin, heights.svgFour, widths.svgFour);
+          linescales = multipleLine(multLines, dataAttainment, d, year.value(),
+                                    margin, heights.svgFour, widths.svgFive);
+        } else {
+          barchart(barChart, dataAttainment, d, CURRENT_YEAR,
+                   margin, heights.svgFour, widths.svgFour);
+          linescales = multipleLine(multLines, dataAttainment, d, CURRENT_YEAR,
+                                    margin, heights.svgFour, widths.svgFive);
+        };
+      };
+      slider(dataAttainment, barInfo, lineInfo, linescales);
+      d5.selectAll('#sliderAttainment text')
+        .style('opacity', 1);
+    });
+
+  mapAttainment.legend({
+    defaultFillName: 'No data',
+    labels: {
+      ZERO: '<2 years',
+      ONE: '2-4 years',
+      TWO: '4-6 years',
+      THREE: '4-8 years',
+      FOUR: '8-10 years',
+      FIVE: '10-12 years',
+      SIX:  '>12 years',
+    },
+  });
+  d5.selectAll('#figureThree .datamaps-legend dd')
+    .on('mouseover', function(d, i) {console.log(i);})
+
+  d5.select('#nameFigThree')
+    .append('text')
+    .attr('class', 'figureName')
+    .attr('id', 'figureThreeName')
+    .text('Figure 3: Education attainment in the year 1870');
+
+};
+
 
 function linechart(data_dict, margin, width, height){
 
@@ -230,6 +252,7 @@ function linechart(data_dict, margin, width, height){
   for (var i = 0; i < years.length; i++) {
     years[i] = Number(years[i]);
   };
+
   var lineWorld = d5.select('#figureOne')
                     .append('svg')
                     .attr('class', 'linechart')
@@ -245,51 +268,39 @@ function linechart(data_dict, margin, width, height){
     .attr('y', height - margin.subscript)
     .text('Figure 1: worldwide literacy throughout the past two centuries');
 
-  var xScaleLine = d5.scaleLinear()
-                     .domain([d5.min(years), d5.max(years)])
-                     .range([margin.left, width - margin.right]),
-      yScaleLine = d5.scaleLinear()
-                     .domain([0, 100])
-                     .range([height - margin.bottom, margin.top]);
+  var scales = lineScales(years, margin, width, height);
+  var axes = lineAxes(scales)
 
   var line = d5.line()
                .x(function(d, i){
-                 return xScaleLine(years[i]);
+                 return scales.x(years[i]);
                })
                .y(function(d){
-                 return yScaleLine(d.y);
+                 return scales.y(d.y);
                })
                .curve(d5.curveMonotoneX);
 
   var dataset = d5.range(years.length).map(function(d, i) {
     return {"y": data_dict[years[i]]};
   });
-  var xAxisLine = d5.axisBottom()
-                    .scale(xScaleLine)
-                    .ticks(12)
-                    .tickFormat(function(d) {
-                      return d;
-                    }),
-      yAxisLine = d5.axisLeft()
-                    .scale(yScaleLine);
 
   lineWorld.append('g')
            .attr('class', 'xAxis')
            .attr('id', 'xLine')
            .attr('transform', 'translate(0,' + (height - margin.bottom) + ')')
-           .call(xAxisLine);
+           .call(axes.x);
   lineWorld.append('g')
            .attr('class', 'yAxis')
            .attr('id', 'yLine')
            .attr('transform', 'translate(' + margin.left + ', 0)')
-           .call(yAxisLine);
+           .call(axes.y);
+
  // gridlines in y axis function
- function make_y_gridlines() {
-     return d5.axisLeft(yScaleLine)
-         .ticks(10)
+ function makeYGgridlines() {
+     return d5.axisLeft(scales.y)
+         .ticks(10);
  };
 
- // add the Y gridlines
  lineWorld.append("g")
           .attr("class", "grid")
           .attr('transform', 'translate(' + margin.left + ',0)')
@@ -299,7 +310,7 @@ function linechart(data_dict, margin, width, height){
  lineWorld.select('.grid')
           .transition()
           .style('z-index', 1)
-            .call(make_y_gridlines()
+            .call(makeYGgridlines()
               .tickSize(-width + margin.left + margin.right)
               .tickFormat("")
             );
@@ -309,22 +320,22 @@ function linechart(data_dict, margin, width, height){
            .attr('id', 'lineTitle')
            .attr('text-anchor', 'middle')
            .attr('y', margin.top - 10)
-           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-                                  + xScaleLine.domain()[0]))
+           .attr('x', scales.x((scales.x.domain()[1] - scales.x.domain()[0])/2
+                                  + scales.x.domain()[0]))
            .text('Worldwide literacy rate, 1800-2014');
   lineWorld.append('text')
            .attr('class', 'axeTitle')
            .attr('id', 'xTitle')
            .attr('text-anchor', 'middle')
-           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-                                  + xScaleLine.domain()[0]))
+           .attr('x', scales.x((scales.x.domain()[1] - scales.x.domain()[0])/2
+                                  + scales.x.domain()[0]))
            .attr('y', height - margin.axisText)
            .text('Year');
   lineWorld.append('text')
            .attr('class', 'axeTitle')
            .attr('id', 'yTitle')
            .attr('text-anchor', 'middle')
-           .attr('x', -yScaleLine((yScaleLine.domain()[1])/2))
+           .attr('x', -scales.y((scales.y.domain()[1])/2))
            .attr('y', margin.axisText)
            .attr('transform', 'rotate(-90)')
            .text('Literate population (%)');
@@ -337,25 +348,64 @@ function linechart(data_dict, margin, width, height){
              data_dict[years[i]]+ " %" + "</span>";
     });
   lineWorld.call(lineTip);
+
+  // draw line
   var path = lineWorld.append('path')
                       .datum(dataset)
                       .attr('class', 'line')
                       .attr('id', 'lineWorld')
                       .attr('d', line);
 
+  // animated drawing
   var totalLength = path.node().getTotalLength();
-  path
-   .attr("stroke-dasharray", totalLength + " " + totalLength)
-   .attr("stroke-dashoffset", totalLength)
-   .transition()
-     .ease(d5.easeLinear)
-     .duration(2000)
-     .attr("stroke-dashoffset", 0);
+  path.attr("stroke-dasharray", totalLength + " " + totalLength)
+      .attr("stroke-dashoffset", totalLength)
+      .transition()
+        .ease(d5.easeLinear)
+        .duration(2000)
+        .attr("stroke-dashoffset", 0);
 
+  dots(lineWorld, years, data_dict, lineTip, scales);
+
+  return;
+};
+
+
+function lineScales(years, margin, width, height) {
+
+  var xScaleLine = d5.scaleLinear()
+                     .domain([d5.min(years), d5.max(years)])
+                     .range([margin.left, width - margin.right]),
+      yScaleLine = d5.scaleLinear()
+                     .domain([0, 100])
+                     .range([height - margin.bottom, margin.top]);
+
+  return {x: xScaleLine, y: yScaleLine};
+};
+
+
+function lineAxes(scales) {
+
+  var xAxisLine = d5.axisBottom()
+                    .scale(scales.x)
+                    .ticks(12)
+                    .tickFormat(function(d) {
+                      return d;
+                    }),
+      yAxisLine = d5.axisLeft()
+                    .scale(scales.y);
+
+  return {x: xAxisLine, y: yAxisLine};
+};
+
+
+function dots(lineWorld, years, data_dict, lineTip, scales) {
+
+  // preprocess data to use for dots
   var dotsData = new Array;
   for (var i = 0; i < years.length; i++) {
-    var year = years[i]
-    dotsData[i] = {year: year, rate: data_dict[years[i]]}
+    var year = years[i];
+    dotsData[i] = {year: year, rate: data_dict[years[i]]};
   };
 
   var dots = lineWorld.selectAll("dot")
@@ -369,15 +419,17 @@ function linechart(data_dict, margin, width, height){
                       .on('mouseout', lineTip.hide);
 
   dots.attr('cx', function(d, i) {
-        return xScaleLine(d.year);
+        return scales.x(d.year);
       })
       .attr('cy', function(d) {
-        return yScaleLine(d.rate);
+        return scales.y(d.rate);
       })
       .transition()
         .ease(d5.easeLinear)
         .delay(2000)
         .style('opacity', 1);
+
+  return;
 };
 
 
@@ -385,6 +437,7 @@ function slider(data_dict, barInfo, lineInfo, linescales) {
 
   d5.select('#sliderAttainment')
     .remove();
+
   var years = new Array,
       ticks = new Array,
       dataYears = Object.keys(data_dict['AUS']);
@@ -394,10 +447,14 @@ function slider(data_dict, barInfo, lineInfo, linescales) {
       ticks[i] = dataYears[i];
     };
   };
+
+  // depending on the input, some things must be changed differently
   barInfo = barInfo || 0;
   lineInfo = lineInfo || 0;
   linescales = linescales || 0;
 
+  // the slider will begin on 1870 when the page is loaded, but after choosing a
+  // different country, the slider must stay on the current year
   if (barInfo != 0){
     var year = barInfo.year.value();
   } else {
@@ -417,51 +474,57 @@ function slider(data_dict, barInfo, lineInfo, linescales) {
     .default(CURRENT_YEAR)
     .on('onchange', function(val) {
       d5.selectAll('#sliderAttainment text')
-        .style('opacity', 1);
+        .style('opacity', 1); // fixes a weird bug where the selected year is not
+                              //  shown under the slider
       d5.select('#figureThreeName')
         .transition()
           .text('Figure 3: Education attainment in the year ' + val);
       var current = updateMap(data_dict, sliderTime);
       CURRENT_YEAR = current.value();
       if (barInfo != 0) {
+
+        // if the bar- and linecharts are shown, update them
         updateBar(sliderTime, barInfo);
         updateLines(sliderTime, lineInfo, linescales);
       };
     });
 
-    var gTime = d5
-      .select('div#slider-time')
-      .append('svg')
-      .attr('id', 'sliderAttainment')
-      .attr('width', 847)
-      .attr('height', 100)
-      .append('g')
-      .attr('transform', 'translate(15,30)');
+  var gTime = d5
+    .select('div#slider-time')
+    .append('svg')
+    .attr('id', 'sliderAttainment')
+    .attr('width', 847)
+    .attr('height', 100)
+    .append('g')
+    .attr('transform', 'translate(15,30)');
 
-    gTime.call(sliderTime);
-    d5.select('#figureThreeName')
-      .transition()
-        .text('Figure 3: Education attainment in the year ' + sliderTime.value());
-    d5.selectAll('#sliderAttainment text')
-      .style('opacity', 1);
-    return sliderTime;
+  gTime.call(sliderTime);
+  d5.select('#figureThreeName')
+    .transition()
+      .text('Figure 3: Education attainment in the year ' + sliderTime.value());
+  d5.selectAll('#sliderAttainment text')
+    .style('opacity', 1);
+
+  return sliderTime;
 };
 
 
 function updateMap(data_dict, sliderTime) {
+// Update the map using the values passed in through the slider.
 
   var year = sliderTime.value();
   d5.select('#figureThree')
     .selectAll('path')
     .style('fill', function(d) {
-      return colorFill(data_dict, d.id, year)
+      return colorFill(data_dict, d.id, year);
     });
 
-  return sliderTime
+  return sliderTime;
 };
 
 
 function d3Stuff() {
+// Layout of the page.
 
   var wrapper = d5.select('.wrapper');
   wrapper.append('div')
@@ -640,15 +703,24 @@ function d3Stuff() {
   content.select('#sources')
          .append('ul')
          .attr('id', 'sourcesList')
-            .append('li').text('source 1');
+           .append('li')
+             .append('a')
+             .attr('href', 'http://www.barrolee.com/Lee_Lee_LRdata_dn.htm')
+             .attr('target', '_blank')
+             .text('Dataset used by Lee and Lee (2016)');
   content.select('#sourcesList')
-         .append('li').text('source 2');
+         .append('li')
+           .append('a')
+           .attr('href', 'http://data.uis.unesco.org/index.aspx?queryid=166&lang=en')
+           .attr('target', '_blank')
+           .text('UNESCO data on world literacy');
 
+  return;
 };
 
 
 function addCountryCodes(data, codes) {
-// add country codes to dictionary to use in data map
+// Add country codes to dictionary to use in datamap.
 
   var allCountries = Object.keys(codes),
       allDataKeys = Object.keys(data);
@@ -660,14 +732,15 @@ function addCountryCodes(data, codes) {
     };
   };
 
-  return newDataset
+  return newDataset;
 };
 
 
 function fillkeysAttainment(data) {
+// Set the fillkeys for the initial attainment map.
 
-  var countries = Object.keys(data);
-  var fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
+  var countries = Object.keys(data),
+      fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
                   'FIVE', 'SIX'];
 
   for (var i = 0; i < countries.length; i++) {
@@ -682,9 +755,10 @@ function fillkeysAttainment(data) {
 
 
 function fillkeysLiteracy(data) {
+// Set the fillkeys for the literacy map.
 
-  var countries = Object.keys(data);
-  var fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
+  var countries = Object.keys(data),
+      fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
                   'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE'];
 
   for (var i = 0; i < countries.length; i++) {
@@ -698,6 +772,8 @@ function fillkeysLiteracy(data) {
 
 
 function colorFill(data, id, year) {
+// Helper function to the updateMap function. Sets the colors to fill the
+//  countries.
 
   var info = data[id];
   var colors = d5.schemeRdYlGn[7];
@@ -714,13 +790,18 @@ function colorFill(data, id, year) {
 
 
 function barchart(barChart, data, country, year, margin, height, width, transDuration) {
+// Make a barchart. When called from the updateBar function, this will have a
+//  shorter transition duration (transDuration) than when called from the datamap
+// to enable a smooth transition.
 
   d5.select('#noData')
     .remove();
   transDuration = transDuration || 750;
 
+  // preprocess the data by selecting the right year, country, and educational
+  //  level.
   var info = data[country.id][year],
-      eduKeys = ['uneducated', 'primary', 'secondary', 'tertiary'], // miss niet hardcodden
+      eduKeys = ['uneducated', 'primary', 'secondary', 'tertiary'],
       dict = new Object,
       values = new Array;
   for (var i = 0; i < eduKeys.length; i++) {
@@ -728,6 +809,7 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
     values[i] = info[eduKeys[i]];
   };
 
+  // make scales and axes
   var scales = barScales(values, margin, height, width);
   var axes = barAxes(eduKeys, scales);
   axesText(barChart, scales, margin, height, width, country, year);
@@ -751,24 +833,37 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
             .call(axes.y);
 
   // gridlines in y axis function
-  function make_y_gridlines() {
+  function makeYGridlines() {
       return d5.axisLeft(scales.y)
-          .ticks(10)
-  }
+          .ticks(10);
+  };
 
-  // add the Y gridlines
   barChart.append("g")
           .attr("class", "grid")
           .attr('transform', 'translate(' + margin.left + ',0)')
           .style('z-index', 1)
           .style('opacity', 0.5);
+  barChart.append('text')
+          .attr('class', 'infoLevel')
+          .attr('id', 'level')
+          .attr('text-anchor', 'end')
+          .attr('x', width - 40)
+          .attr('y', 99)
+          .attr('font-size', '40px');
+  barChart.append('text')
+          .attr('class', 'infoLevel')
+          .attr('id', 'percentage')
+          .attr('text-anchor', 'end')
+          .attr('x', width - 40)
+          .attr('y', 120)
+          .attr('font-size', '15px');
 
   var barWidth = 40;
   barChart.select('.grid')
           .transition()
           .style('z-index', 1)
           .style('opacity', 0.5)
-            .call(make_y_gridlines()
+            .call(makeYGridlines()
               .tickSize(-width + margin.right + margin.left - barWidth)
               .tickFormat("")
             );
@@ -779,6 +874,9 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
   bar.enter()
      .append('rect')
      .attr('class', 'bar')
+     .attr('id', function(d, i) {
+       return eduKeys[i];
+     })
      .attr('x', function(d, i) {
        return scales.x(i);
      })
@@ -786,6 +884,11 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
      .on('mouseover', function(d, i) {
        var num = i;
        var linegraph = d5.select('#figureFive');
+
+       // the mouseover behaves differently when a bar has been clicked. If the
+       //  linegraph shows only a few lines, a mouseover will show the line
+       //  corresponding to the bar. If not, the mouseover will highlight the
+       //  line corresponding to the bar.
        if (CLICKED === false) {
          linegraph.selectAll('.line')
                   .filter(function(d, i) { return num != i; })
@@ -801,6 +904,12 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
      })
      .on('mouseout', function(d, i) {
        var num = i;
+
+       // the mouseout, like the mouseover, behaves differently when a bar has
+       //  been clicked. When clicked === true, hovering the bar will show its
+       //  corresponding line. The line will disappear thereafter. However, when
+       //  clicked === false, hovering the bar will highlight the corresponding
+       //  line. Upon mouseout, the other lines will have to become visible again.
        if (CLICKED === false) {
          d5.selectAll('#figureFive .line')
            .transition()
@@ -814,6 +923,8 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
        }
      })
      .on('click', function(d, i) {
+       // show the line corresponding to the clicked bar. If a line is already
+       //  visible, also show this line
        var num = i,
            linegraph = d5.select('#figureFive');
        if (CLICKED === false) {
@@ -827,10 +938,12 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
                   .transition()
                     .style('opacity', 1);
        };
+       // keep track of which lines are being shown and make sure there is a
+       //  possibility to reset
        SELECTED.push(num);
        CLICKED = true;
 
-       resetButton(width, height);
+       resetButton(width);
      })
      .merge(bar)
      .transition(d5.easeQuad)
@@ -849,16 +962,20 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
 
 
 function updateBar(sliderTime, barInfo) {
+// Update the barchart to the selected year.
 
   var year = CURRENT_YEAR,
       transDuration = 10;
   barchart(barInfo.chart, barInfo.data, barInfo.country, year, barInfo.margin,
            barInfo.height, barInfo.width, transDuration);
+
   return;
 };
 
 
 function barScales(values, margin, height, width) {
+// Make scales. The xTickScale serves to align the bars and
+//  their ticks.
 
   var xScaleBar = d5.scaleLinear()
                     .domain([0, values.length - 1])
@@ -866,7 +983,7 @@ function barScales(values, margin, height, width) {
   var yScaleBar = d5.scaleLinear()
                     .domain([0, 100])
                     .range([height - margin.bottom, margin.top]);
-  var barWidth = 40
+  var barWidth = 40;
   var xTickScaleBar = d5.scaleLinear()
                         .domain([0, values.length - 1])
                         .range([margin.left + margin.bar + barWidth/2, width - margin.right + barWidth/2]);
@@ -876,6 +993,7 @@ function barScales(values, margin, height, width) {
 
 
 function barAxes(keys, scales) {
+// Make axes.
 
   var xAxisBar = d5.axisBottom()
                    .ticks(keys.length)
@@ -928,15 +1046,17 @@ function axesText(barChart, scales, margin, height, width, country, year) {
             .text('Percentage');
   barChart.select('#figureFourName')
           .transition()
-            .text('Figure 4: Maximum level of education in a country in any given year')
-
+            .text('Figure 4: Maximum level of education in a country in any given year');
 };
 
 
 function noBars(country, barChart, margin, height, width) {
+// If there is no data, don't make a chart. Rather, let the user know
+//  that there is no data.
 
   var transDuration = 300;
 
+  // no graph
   barChart.selectAll('rect')
           .transition()
             .duration(transDuration)
@@ -971,6 +1091,7 @@ function noBars(country, barChart, margin, height, width) {
           .transition()
             .text(country.properties.name);
 
+  // no data
   barChart.append('text')
           .attr('id', 'noData')
           .attr('text-anchor', 'middle')
@@ -987,8 +1108,12 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
 
   d5.selectAll('#noData')
     .remove();
+  d5.selectAll('.indicator')
+    .transition()
+      .style('opacity', 0.5);
   transDuration = transDuration || 750;
 
+  var eduKeys = ['uneducated', 'primary', 'secondary', 'tertiary'];
   var dataNeeded = data[country.id];
   delete dataNeeded.fillKey;
   var yearsData = Object.keys(dataNeeded),
@@ -1094,15 +1219,15 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
            .attr('class', 'indicator')
            .style('stroke', 'black')
            .style('stroke-width', '1.5px')
-           .style('z-index', 1)
-           .style('opacity', 0.5);
+           .style('opacity', 0.5)
+           .style('z-index', 1);
 
   if (CURRENT_YEAR != 0) {
     multLines.select('.indicator')
              .attr('x1', xScaleLine(CURRENT_YEAR))
              .attr('x2', xScaleLine(CURRENT_YEAR))
              .attr('y1', margin.top)
-             .attr('y2', height - margin.bottom);
+             .attr('y2', height - margin.bottom)
   };
 
   multLines.select('.grid')
@@ -1114,30 +1239,34 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
                .tickFormat("")
              );
 
-   multLines.append('text')
-            .attr('class', 'figTitle')
-            .attr('id', 'multTitle')
-            .attr('text-anchor', 'middle')
-            .attr('y', margin.top - 10)
-            .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-                                   + xScaleLine.domain()[0]))
-            .text('Highest educational level, 1870-2010');
-   multLines.append('text')
-            .attr('class', 'axeTitle')
-            .attr('id', 'xMult')
-            .attr('text-anchor', 'middle')
-            .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-                                   + xScaleLine.domain()[0]))
-            .attr('y', height - margin.axisText)
-            .text('Year');
-   multLines.append('text')
-            .attr('class', 'axeTitle')
-            .attr('id', 'yMult')
-            .attr('text-anchor', 'middle')
-            .attr('x', -yScaleLine((yScaleLine.domain()[1])/2))
-            .attr('y', margin.axisText + 5)
-            .attr('transform', 'rotate(-90)')
-            .text('Rate (%)');
+  multLines.append('text')
+           .attr('class', 'figTitle')
+           .attr('id', 'multTitle')
+           .attr('text-anchor', 'middle')
+           .attr('y', margin.axisText)
+           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
+                                 + xScaleLine.domain()[0]));
+
+  multLines.select('.figTitle')
+           .transition()
+             .text('Highest educational level, 1870-2010');
+
+  multLines.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'xMult')
+           .attr('text-anchor', 'middle')
+           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
+                                  + xScaleLine.domain()[0]))
+           .attr('y', height - margin.axisText)
+           .text('Year');
+  multLines.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'yMult')
+           .attr('text-anchor', 'middle')
+           .attr('x', -yScaleLine((yScaleLine.domain()[1])/2))
+           .attr('y', margin.axisText + 5)
+           .attr('transform', 'rotate(-90)')
+           .text('Rate (%)');
 
   multLines.append('path')
            .attr('class', 'line')
@@ -1175,17 +1304,53 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
              .duration(transDuration)
              .style('stroke', 'green')
              .attr('d', lineTert);
+  multLines.selectAll('.line')
+           .on('mouseover', function(d, i) {
+             var currYear = 0,
+                 num = i,
+                 bars = d5.select('#figureFour');
 
-  var scales = {x: xScaleLine, y: yScaleLine};
+             bars.selectAll('.bar')
+                 .filter(function(d, i) { return num != i; })
+                 .transition()
+                   .style('opacity', 0.3);
 
-  return scales;
+             if (CURRENT_YEAR === 0) { currYear = 1870; }
+             else { currYear = CURRENT_YEAR; };
+             d5.select('#level')
+               .text(eduKeys[i])
+               .transition()
+                 .style('opacity', 1);
+             d5.select('#percentage')
+               .text(dataNeeded[currYear][eduKeys[i]] + '%')
+               .transition()
+                 .style('opacity', 1);
+           })
+           .on('mouseout', function(d) {
+             var bars = d5.select('#figureFour');
+             bars.selectAll('.bar')
+                 .transition()
+                   .style('opacity', 1);
+
+             d5.select('#percentage')
+               .transition()
+                 .style('opacity', 0);
+             d5.select('#level')
+               .transition()
+                 .style('opacity', 0);
+           })
+
+  return {x: xScaleLine, y: yScaleLine};
 };
 
 
 function noLines(country, multLines, margin, height, width) {
+// If there is no data, don't make a chart. Rather, let the user know
+//  that there is no data.
 
   var transDuration = 300;
 
+  // no graph
   multLines.selectAll('path')
            .transition()
              .duration(transDuration)
@@ -1206,19 +1371,24 @@ function noLines(country, multLines, margin, height, width) {
            .transition()
              .duration(transDuration)
              .style('opacity', 0);
+  multLines.selectAll('.indicator')
+           .transition()
+             .duration(transDuration)
+             .style('opacity', 0);
 
   if (multLines.select('.figTitle').empty()) {
     multLines.append('text')
              .attr('class', 'figTitle')
              .attr('id', 'barTitle')
              .attr('text-anchor', 'middle')
-             .attr('x', width/2 + margin.left/2)
+             .attr('x', width/2 + margin.left/2 - margin.right/2)
              .attr('y', margin.axisText);
   };
   multLines.select('.figTitle')
            .transition()
-             .text(country.properties.name);
+             .text('Highest educational level, 1870-2010');
 
+  // no data
   multLines.append('text')
            .attr('id', 'noData')
            .attr('text-anchor', 'middle')
@@ -1232,7 +1402,11 @@ function noLines(country, multLines, margin, height, width) {
 
 
 function updateLines(sliderTime, lineInfo, scales) {
+// Update the multiple line chart: the indicator line
+//  aligns itself with the year that is being shown in
+//  the bar chart.
 
+  // year is either 1870 or the current year
   var year = sliderTime.value();
   if (CURRENT_YEAR != 0) {
     year = CURRENT_YEAR;
@@ -1251,9 +1425,9 @@ function updateLines(sliderTime, lineInfo, scales) {
 };
 
 
-function resetButton(width, height) {
+function resetButton(width) {
+// clicking on the reset button brings back all the lines
 
-  console.log(SELECTED);
   d5.select('#resetButton').remove();
   var linegraph = d5.select('#multipleLines');
   linegraph.append('g')

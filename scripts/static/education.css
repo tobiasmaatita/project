@@ -170,6 +170,13 @@ li a
   cursor: crosshair;
 }
 
+.figTitle
+{
+  font-family: helvetica;
+  font-size: 15px;
+  font-weight: lighter;
+}
+
 #figureTwo
 {
   /* border: 1px solid purple; */
@@ -227,6 +234,14 @@ li a
   margin-top: 15px;
 }
 
+.infoLevel
+{
+  fill: yellow;
+  stroke: none;
+  z-index: 2000;
+  position: absolute;
+}
+
 #xBar path, #xBar line
 {
   display: none;
@@ -235,9 +250,25 @@ li a
 .bar
 {
   cursor: pointer;
+  position: absolute;
 }
 
-.bar:hover
+#uneducated:hover
+{
+  fill: black;
+}
+
+#primary:hover
+{
+  fill: red;
+}
+
+#secondary:hover
+{
+  fill: blue;
+}
+
+#tertiary:hover
 {
   fill: green;
 }

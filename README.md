@@ -55,7 +55,7 @@ If indeed different countries: hovering over one line will push the other lines 
 
 ### Data sources
 The worldwide literacy rate throughout the years can be extracted from this site: http://data.uis.unesco.org/index.aspx?queryid=166&lang=en/. To use this data, I will not have to transform any data, except to maybe another type of file which might be easier to use.
-This site contains a lot of data used in Lee and Lee (2016): http://www.barrolee.com/Lee_Lee_LRdata_dn.html/. The datasets span from the late 1800s to 2010, which might be very useful for my visualistation.
+This site contains a lot of data used in Lee and Lee (2016): http://www.barrolee.com/Lee_Lee_LRdata_dn.htm/. The datasets span from the late 1800s to 2010, which might be very useful for my visualistation.
 
 
 ### External components  
