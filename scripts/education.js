@@ -1,6 +1,8 @@
 function main() {
 
   d3Stuff();
+
+  // global variables.
   CURRENT_YEAR = 0;
   CLICKED = false;
   SELECTED = [];
