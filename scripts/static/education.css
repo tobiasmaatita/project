@@ -33,6 +33,7 @@ html, body
   position: fixed;
   padding-top: 30px;
   margin-left: 30px;
+  overflow: hidden;
 }
 
 #introduction
@@ -296,6 +297,15 @@ li a
 #slider-time
 {
   /* border: 1px solid purple; */
+}
+
+@media screen {
+  #figureFour
+  {
+    float: none;
+    margin-right:0;
+    width:auto;
+  }
 }
 
 .axeTitle

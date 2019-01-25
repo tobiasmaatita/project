@@ -55,15 +55,15 @@ function main() {
     dataLiteracyCountry = addCountryCodes(dataLiteracyCountry, countryCodes);
     dataLiteracyCountry = fillkeysLiteracy(dataLiteracyCountry, allCountriesWorldLiteracy);
 
-    // make all visualisation
+    // make all visualisations
     literacyMap(dataLiteracyCountry);
     linechart(dataLiteracyWorld, margin, widths.svgOne, heights.svgOne);
     attainmentMap(dataAttainment, margin, heights, widths);
 
-  return;
+    return;
   });
 
-return;
+  return;
 };
 
 function literacyMap(dataLiteracyCountry) {
@@ -160,6 +160,7 @@ function attainmentMap(dataAttainment, margin, heights, widths) {
       THREE: colorsAttainment[3],
       FOUR: colorsAttainment[4],
       FIVE: colorsAttainment[5],
+      SIX: colorsAttainment[6],
       defaultFill: 'grey'
     },
     geographyConfig: {
@@ -230,14 +231,12 @@ function attainmentMap(dataAttainment, margin, heights, widths) {
       ZERO: '<2 years',
       ONE: '2-4 years',
       TWO: '4-6 years',
-      THREE: '4-8 years',
+      THREE: '6-8 years',
       FOUR: '8-10 years',
       FIVE: '10-12 years',
       SIX:  '>12 years',
     },
   });
-  d5.selectAll('#figureThree .datamaps-legend dd')
-    .on('mouseover', function(d, i) {console.log(i);})
 
   d5.select('#nameFigThree')
     .append('text')
@@ -262,16 +261,10 @@ function linechart(data_dict, margin, width, height){
                     .attr('height', height)
                     .attr('width', width)
                     .attr('stroke', 'black');
-  d5.select('#figureOne svg')
-    .append('text')
-    .attr('class', 'figureName')
-    .attr('id', 'figureOneName')
-    .attr('x', 0)
-    .attr('y', height - margin.subscript)
-    .text('Figure 1: worldwide literacy throughout the past two centuries');
 
   var scales = lineScales(years, margin, width, height);
-  var axes = lineAxes(scales)
+  var axes = lineAxes(scales);
+  lineText(lineWorld, scales, margin, height);
 
   var line = d5.line()
                .x(function(d, i){
@@ -286,6 +279,16 @@ function linechart(data_dict, margin, width, height){
     return {"y": data_dict[years[i]]};
   });
 
+  var lineTip = d5.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d, i) {
+      return "<strong>" + years[i] + "</strong> <br><span>" +
+             data_dict[years[i]]+ " %" + "</span>";
+    });
+  lineWorld.call(lineTip);
+
+  // draw graph
   lineWorld.append('g')
            .attr('class', 'xAxis')
            .attr('id', 'xLine')
@@ -296,62 +299,9 @@ function linechart(data_dict, margin, width, height){
            .attr('id', 'yLine')
            .attr('transform', 'translate(' + margin.left + ', 0)')
            .call(axes.y);
+  gridLine(lineWorld, scales, margin, width);
+  dots(lineWorld, years, data_dict, lineTip, scales);
 
- // gridlines in y axis function
- function makeYGgridlines() {
-     return d5.axisLeft(scales.y)
-         .ticks(10);
- };
-
- lineWorld.append("g")
-          .attr("class", "grid")
-          .attr('transform', 'translate(' + margin.left + ',0)')
-          .style('z-index', 1)
-          .style('opacity', 0.5);
-
- lineWorld.select('.grid')
-          .transition()
-          .style('z-index', 1)
-            .call(makeYGgridlines()
-              .tickSize(-width + margin.left + margin.right)
-              .tickFormat("")
-            );
-
-  lineWorld.append('text')
-           .attr('class', 'figTitle')
-           .attr('id', 'lineTitle')
-           .attr('text-anchor', 'middle')
-           .attr('y', margin.top - 10)
-           .attr('x', scales.x((scales.x.domain()[1] - scales.x.domain()[0])/2
-                                  + scales.x.domain()[0]))
-           .text('Worldwide literacy rate, 1800-2014');
-  lineWorld.append('text')
-           .attr('class', 'axeTitle')
-           .attr('id', 'xTitle')
-           .attr('text-anchor', 'middle')
-           .attr('x', scales.x((scales.x.domain()[1] - scales.x.domain()[0])/2
-                                  + scales.x.domain()[0]))
-           .attr('y', height - margin.axisText)
-           .text('Year');
-  lineWorld.append('text')
-           .attr('class', 'axeTitle')
-           .attr('id', 'yTitle')
-           .attr('text-anchor', 'middle')
-           .attr('x', -scales.y((scales.y.domain()[1])/2))
-           .attr('y', margin.axisText)
-           .attr('transform', 'rotate(-90)')
-           .text('Literate population (%)');
-
-  var lineTip = d5.tip()
-    .attr('class', 'd3-tip')
-    .offset([-10, 0])
-    .html(function(d, i) {
-      return "<strong>" + years[i] + "</strong> <br><span>" +
-             data_dict[years[i]]+ " %" + "</span>";
-    });
-  lineWorld.call(lineTip);
-
-  // draw line
   var path = lineWorld.append('path')
                       .datum(dataset)
                       .attr('class', 'line')
@@ -366,8 +316,6 @@ function linechart(data_dict, margin, width, height){
         .ease(d5.easeLinear)
         .duration(2000)
         .attr("stroke-dashoffset", 0);
-
-  dots(lineWorld, years, data_dict, lineTip, scales);
 
   return;
 };
@@ -398,6 +346,67 @@ function lineAxes(scales) {
                     .scale(scales.y);
 
   return {x: xAxisLine, y: yAxisLine};
+};
+
+
+function gridLine(svg, scales, margin, width) {
+
+  function makeYGgridlines() {
+      return d5.axisLeft(scales.y)
+          .ticks(10);
+  };
+
+  svg.append("g")
+           .attr("class", "grid")
+           .attr('transform', 'translate(' + margin.left + ',0)')
+           .style('z-index', 1)
+           .style('opacity', 0.5);
+
+  svg.select('.grid')
+           .transition()
+           .style('z-index', 1)
+             .call(makeYGgridlines()
+               .tickSize(-width + margin.left + margin.right)
+               .tickFormat("")
+             );
+};
+
+
+function lineText(lineWorld, scales, margin, height) {
+
+  lineWorld.append('text')
+           .attr('class', 'figTitle')
+           .attr('id', 'lineTitle')
+           .attr('text-anchor', 'middle')
+           .attr('y', margin.top - 10)
+           .attr('x', scales.x((scales.x.domain()[1] - scales.x.domain()[0])/2
+                                  + scales.x.domain()[0]))
+           .text('Worldwide literacy rate, 1800-2014');
+  lineWorld.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'xTitle')
+           .attr('text-anchor', 'middle')
+           .attr('x', scales.x((scales.x.domain()[1] - scales.x.domain()[0])/2
+                                  + scales.x.domain()[0]))
+           .attr('y', height - margin.axisText)
+           .text('Year');
+  lineWorld.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'yTitle')
+           .attr('text-anchor', 'middle')
+           .attr('x', -scales.y((scales.y.domain()[1])/2))
+           .attr('y', margin.axisText)
+           .attr('transform', 'rotate(-90)')
+           .text('Literate population (%)');
+  d5.select('#figureOne svg')
+    .append('text')
+    .attr('class', 'figureName')
+    .attr('id', 'figureOneName')
+    .attr('x', 0)
+    .attr('y', height - margin.subscript)
+    .text('Figure 1: worldwide literacy throughout the past two centuries');
+
+  return;
 };
 
 
@@ -747,11 +756,11 @@ function fillkeysAttainment(data) {
 
   for (var i = 0; i < countries.length; i++) {
     var attainment = data[countries[i]]['1870']['years of education total'];
-    attainment = Math.round(attainment / 2 - 1);
+    attainment = attainment / 2;
+    attainment -= attainment % 1;
     if (attainment < 0) { attainment = 0; };
     data[countries[i]]['fillKey'] = fillKeys[attainment];
   };
-
   return data;
 };
 
@@ -765,7 +774,8 @@ function fillkeysLiteracy(data) {
 
   for (var i = 0; i < countries.length; i++) {
     var literacy = data[countries[i]]['Literacy rate (%)'];
-    literacy = Math.round(literacy / 10 - 1);
+    literacy = (literacy - literacy % 10) / 10;
+    if (literacy === 10) { literacy = 9; };
     data[countries[i]]['fillKey'] = fillKeys[literacy];
   };
 
@@ -782,7 +792,8 @@ function colorFill(data, id, year) {
 
   if (info) {
     var attainment = data[id][year]['years of education total'];
-    attainment = Math.round(attainment / 2 - 1);
+    attainment = attainment / 2;
+    attainment -= attainment % 1;
     if (attainment < 0) { attainment = 0; };
     return colors[attainment];
   } else {
@@ -1125,66 +1136,10 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
     years[i] = Number(yearsData[i]);
   };
 
-  var dataset = new Array;
-
-  for (var i = 0; i < years.length; i++) {
-    var info = dataNeeded[years[i]],
-        datapoint = {};
-    datapoint.year = years[i];
-    datapoint.uneducated = info.uneducated;
-    datapoint.primary = info.primary;
-    datapoint.secondary = info.secondary;
-    datapoint.tertiary = info.tertiary;
-    dataset.push(datapoint);
-  };
-
-  var xScaleLine = d5.scaleLinear()
-                     .domain([d5.min(years), d5.max(years)])
-                     .range([margin.left, width - margin.right]),
-      yScaleLine = d5.scaleLinear()
-                     .domain([0, 100])
-                     .range([height - margin.bottom, margin.top]);
-  var lineUned = d5.line()
-                   .x(function(d, i) {
-                     return xScaleLine(years[i]);
-                   })
-                   .y(function(d){
-                     return yScaleLine(d.uneducated);
-                   })
-                   .curve(d5.curveMonotoneX),
-      linePrim = d5.line()
-                   .x(function(d, i) {
-                     return xScaleLine(years[i]);
-                   })
-                   .y(function(d) {
-                     return yScaleLine(d.primary);
-                   })
-                   .curve(d5.curveMonotoneX),
-      lineSec = d5.line()
-                  .x(function(d, i) {
-                    return xScaleLine(years[i]);
-                  })
-                  .y(function(d) {
-                    return yScaleLine(d.secondary);
-                  })
-                  .curve(d5.curveMonotoneX),
-      lineTert = d5.line()
-                   .x(function(d, i) {
-                     return xScaleLine(years[i]);
-                   })
-                   .y(function(d) {
-                     return yScaleLine(d.tertiary);
-                   })
-                   .curve(d5.curveMonotoneX);
-
-  var xAxisLine = d5.axisBottom()
-                    .scale(xScaleLine)
-                    .ticks(12)
-                    .tickFormat(function(d) {
-                      return d;
-                    }),
-      yAxisLine = d5.axisLeft()
-                    .scale(yScaleLine);
+  var dataset = getDatasetLines(dataNeeded, years),
+      scales = scalesLines(years, margin, width, height);
+  var axes = axesLines(scales),
+      lines = linesLines(multLines, scales, years);
 
   multLines.append('g')
            .attr('class', 'xAxis')
@@ -1199,24 +1154,13 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
            .transition()
              .duration(transDuration)
              .style('opacity', 1)
-             .call(xAxisLine);
+             .call(axes.x);
   multLines.select('#yMult')
            .transition()
              .duration(transDuration)
              .style('opacity', 1)
-             .call(yAxisLine);
+             .call(axes.y);
 
-  function make_y_gridlines() {
-    return d5.axisLeft(yScaleLine)
-             .ticks(10)
-  };
-
-  // add the Y gridlines
-  multLines.append("g")
-           .attr("class", "grid")
-           .attr('transform', 'translate(' + margin.left + ', 0)')
-           .style('z-index', 1)
-           .style('opacity', 0.5);
   multLines.append('line')
            .attr('class', 'indicator')
            .style('stroke', 'black')
@@ -1226,86 +1170,38 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
 
   if (CURRENT_YEAR != 0) {
     multLines.select('.indicator')
-             .attr('x1', xScaleLine(CURRENT_YEAR))
-             .attr('x2', xScaleLine(CURRENT_YEAR))
+             .attr('x1', scales.x(CURRENT_YEAR))
+             .attr('x2', scales.x(CURRENT_YEAR))
              .attr('y1', margin.top)
              .attr('y2', height - margin.bottom)
   };
-
-  multLines.select('.grid')
-           .transition()
-           .style('z-index', 1)
-           .style('opacity', 0.5)
-             .call(make_y_gridlines()
-               .tickSize(-width + margin.left + margin.right)
-               .tickFormat("")
-             );
-
-  multLines.append('text')
-           .attr('class', 'figTitle')
-           .attr('id', 'multTitle')
-           .attr('text-anchor', 'middle')
-           .attr('y', margin.axisText)
-           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-                                 + xScaleLine.domain()[0]));
-
-  multLines.select('.figTitle')
-           .transition()
-             .text('Highest educational level, 1870-2010');
-
-  multLines.append('text')
-           .attr('class', 'axeTitle')
-           .attr('id', 'xMult')
-           .attr('text-anchor', 'middle')
-           .attr('x', xScaleLine((xScaleLine.domain()[1] - xScaleLine.domain()[0])/2
-                                  + xScaleLine.domain()[0]))
-           .attr('y', height - margin.axisText)
-           .text('Year');
-  multLines.append('text')
-           .attr('class', 'axeTitle')
-           .attr('id', 'yMult')
-           .attr('text-anchor', 'middle')
-           .attr('x', -yScaleLine((yScaleLine.domain()[1])/2))
-           .attr('y', margin.axisText + 5)
-           .attr('transform', 'rotate(-90)')
-           .text('Rate (%)');
-
-  multLines.append('path')
-           .attr('class', 'line')
-           .attr('id', 'lineUned')
-  multLines.append('path')
-           .attr('class', 'line')
-           .attr('id', 'linePrim')
-  multLines.append('path')
-           .attr('class', 'line')
-           .attr('id', 'lineSec')
-  multLines.append('path')
-           .attr('class', 'line')
-           .attr('id', 'lineTert')
+  
+  gridLine(multLines, scales, margin, width);
+  linesText(multLines, margin, scales, height);
 
   multLines.select('#lineUned')
            .datum(dataset)
            .transition()
              .duration(transDuration)
-             .attr('d', lineUned);
+             .attr('d', lines.uned);
   multLines.select('#linePrim')
            .datum(dataset)
            .transition()
              .duration(transDuration)
              .style('stroke', 'red')
-             .attr('d', linePrim);
+             .attr('d', lines.prim);
   multLines.select('#lineSec')
            .datum(dataset)
            .transition()
              .duration(transDuration)
              .style('stroke', 'blue')
-             .attr('d', lineSec);
+             .attr('d', lines.sec);
   multLines.select('#lineTert')
            .datum(dataset)
            .transition()
              .duration(transDuration)
              .style('stroke', 'green')
-             .attr('d', lineTert);
+             .attr('d', lines.tert);
   multLines.selectAll('.line')
            .on('mouseover', function(d, i) {
              var currYear = 0,
@@ -1342,7 +1238,138 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
                  .style('opacity', 0);
            })
 
+  return {x: scales.x, y: scales.y};
+};
+
+
+function getDatasetLines(dataNeeded, years) {
+
+  var dataset = new Array;
+
+  for (var i = 0; i < years.length; i++) {
+    var info = dataNeeded[years[i]],
+        datapoint = {};
+    datapoint.year = years[i];
+    datapoint.uneducated = info.uneducated;
+    datapoint.primary = info.primary;
+    datapoint.secondary = info.secondary;
+    datapoint.tertiary = info.tertiary;
+    dataset.push(datapoint);
+  };
+  return dataset;
+};
+
+
+function scalesLines(years, margin, width, height) {
+
+  var xScaleLine = d5.scaleLinear()
+                     .domain([d5.min(years), d5.max(years)])
+                     .range([margin.left, width - margin.right]),
+      yScaleLine = d5.scaleLinear()
+                     .domain([0, 100])
+                     .range([height - margin.bottom, margin.top]);
+
   return {x: xScaleLine, y: yScaleLine};
+};
+
+
+function axesLines(scales) {
+
+  var xAxisLine = d5.axisBottom()
+                    .scale(scales.x)
+                    .ticks(12)
+                    .tickFormat(function(d) {
+                      return d;
+                    }),
+      yAxisLine = d5.axisLeft()
+                    .scale(scales.y);
+
+  return {x: xAxisLine, y: yAxisLine};
+};
+
+
+function linesLines(multLines, scales, years) {
+
+  var lineUned = d5.line()
+                   .x(function(d, i) {
+                     return scales.x(years[i]);
+                   })
+                   .y(function(d){
+                     return scales.y(d.uneducated);
+                   })
+                   .curve(d5.curveMonotoneX),
+      linePrim = d5.line()
+                   .x(function(d, i) {
+                     return scales.x(years[i]);
+                   })
+                   .y(function(d) {
+                     return scales.y(d.primary);
+                   })
+                   .curve(d5.curveMonotoneX),
+      lineSec = d5.line()
+                  .x(function(d, i) {
+                    return scales.x(years[i]);
+                  })
+                  .y(function(d) {
+                    return scales.y(d.secondary);
+                  })
+                  .curve(d5.curveMonotoneX),
+      lineTert = d5.line()
+                   .x(function(d, i) {
+                     return scales.x(years[i]);
+                   })
+                   .y(function(d) {
+                     return scales.y(d.tertiary);
+                   })
+                   .curve(d5.curveMonotoneX);
+  multLines.append('path')
+           .attr('class', 'line')
+           .attr('id', 'lineUned');
+  multLines.append('path')
+           .attr('class', 'line')
+           .attr('id', 'linePrim');
+  multLines.append('path')
+           .attr('class', 'line')
+           .attr('id', 'lineSec');
+  multLines.append('path')
+           .attr('class', 'line')
+           .attr('id', 'lineTert');
+
+  return {uned: lineUned, prim: linePrim, sec: lineSec, tert: lineTert};
+};
+
+
+function linesText(multLines, margin, scales, height) {
+
+  multLines.append('text')
+           .attr('class', 'figTitle')
+           .attr('id', 'multTitle')
+           .attr('text-anchor', 'middle')
+           .attr('y', margin.axisText)
+           .attr('x', scales.x((scales.x.domain()[1] - scales.x.domain()[0])/2
+                                 + scales.x.domain()[0]));
+
+  multLines.select('.figTitle')
+           .transition()
+             .text('Highest educational level, 1870-2010');
+
+  multLines.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'xMult')
+           .attr('text-anchor', 'middle')
+           .attr('x', scales.x((scales.x.domain()[1] - scales.x.domain()[0])/2
+                                  + scales.x.domain()[0]))
+           .attr('y', height - margin.axisText)
+           .text('Year');
+  multLines.append('text')
+           .attr('class', 'axeTitle')
+           .attr('id', 'yMult')
+           .attr('text-anchor', 'middle')
+           .attr('x', -scales.y((scales.y.domain()[1])/2))
+           .attr('y', margin.axisText + 5)
+           .attr('transform', 'rotate(-90)')
+           .text('Rate (%)');
+
 };
 
 
