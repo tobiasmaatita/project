@@ -293,7 +293,7 @@ li a
 #figureFive .line
 {
   stroke-width: 3px;
-  cursor: pointer;
+  cursor: crosshair;
 }
 
 #resetButton

@@ -94,12 +94,13 @@ function d3Stuff() {
          .attr('class', 'text')
          .attr('id', 'literacyExplain')
             .append('p')
-            .text('Uitleg eerste figuur. Hier komt ook de text die bij de tweede \
-                   figuur hoort. Het figuur slaat op de geletterdheid per land \
-                   wereldwijd, met de laatst verkregen data. Misschien ook een \
-                   aanwijzing van hoe te interacteren met de kaart (hover laat \
-                   zien uit welk jaar de data komt en het percentage geletterden \
-                   in dat land).');
+            .text('As shown in figure 1, the worldwide literacy rate started \
+                   rising during the early twentieth century. However significant\
+                   , the worldwide literacy rate is not nearly a hundred percent. \
+                   In the map below, the literacy rate per country is depicted. \
+                   Hover over the countries to get the literacy rate in the \
+                   selected country. This representation shows the latest \
+                   available data for each country.');
 
   content.append('div')
          .attr('class', 'figure')
@@ -129,10 +130,23 @@ function d3Stuff() {
                 .attr('href', '#attainment-paragraph');
   content.select('#educationAttainment')
          .append('p')
-         .text('Hier komt een inleiding op de volgende sectie, namelijk education \
-                attainment. In deze sectie wordt bekeken hoe lang iemand gemiddeld \
-                naar school gaat per land. Ik wil graag interactiviteit inbouwen \
-                door middel van een slider, waardoor je door de tijd heen kan gaan.');
+         .text('The literacy rate in a country is largely influenced the \
+               accessibility of education in a given country. In many countries \
+               nowadays, a child is obliged to attend school for a number of years. \
+               However, this was not always the case. Moreover, it still is not \
+               universally the case these days. The map below shows the vast \
+               difference in educational attainment - meaning the number of years \
+               someone spends in school - between different regions in the world. \
+               Select a country to further inspect the corresponding data. \
+               Use the slider to scroll through time. Based on educational attainment, \
+               the population can be divided into four categories: those who are \
+               uneducated, those who have only attended primary school, those \
+               whose highest level of education is secondary school, and, finally, \
+               those who have attained tertiary education. The line chart shows \
+               how these categories are distributed within a country throughout \
+               the years. The bar chart shows the distribution in a selected year. \
+               Clicking on a bar will select the corresponding line. Add other \
+               lines by clicking other bars, or reset by pressing the reset button.');
   tableOfContents.select('#contents')
                  .append('li')
                  .attr('class', 'section')

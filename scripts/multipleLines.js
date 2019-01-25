@@ -305,7 +305,7 @@ function noLines(country, multLines, margin, height, width) {
   multLines.append('text')
            .attr('id', 'noData')
            .attr('text-anchor', 'middle')
-           .attr('x', width/2 + margin.left/2)
+           .attr('x', width/2 + margin.left/2 - margin.right/2)
            .attr('y', height/2);
   multLines.select('#noData')
            .transition()
