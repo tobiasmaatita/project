@@ -266,7 +266,7 @@ function attainmentMap(dataAttainment, margin, heights, widths) {
 
 
 function slider(data_dict, barInfo, lineInfo, linescales) {
-// add a slider
+// Add a slider.
 
   d5.select('#sliderAttainment')
     .remove();

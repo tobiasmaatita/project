@@ -20,7 +20,7 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
   };
 
   var dataset = getDatasetLines(dataNeeded, years),
-      scales = scalesLines(years, margin, width, height);
+      scales = lineScales(years, margin, width, height);
   var axes = axesLines(scales),
       lines = linesLines(multLines, scales, years);
 
@@ -151,19 +151,6 @@ function getDatasetLines(dataNeeded, years) {
   };
 
   return dataset;
-};
-
-
-function scalesLines(years, margin, width, height) {
-
-  var xScaleLine = d5.scaleLinear()
-                     .domain([d5.min(years), d5.max(years)])
-                     .range([margin.left, width - margin.right]),
-      yScaleLine = d5.scaleLinear()
-                     .domain([0, 100])
-                     .range([height - margin.bottom, margin.top]);
-
-  return {x: xScaleLine, y: yScaleLine};
 };
 
 
