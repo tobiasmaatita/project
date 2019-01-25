@@ -50,7 +50,14 @@ Today, I strive to get a legend on at least one map. Added a line graph instead 
 shows four levels of education and which share of the population has achieved a certain level. This is plotted throughout the years. **still to be fixed:** the words 'no data' are not always centered in the line graph div. (Fixed on day 13)
 
 ## Day 12 (Tue)
-Added a basic legend, but it is not yet exactly what i wanted. Added interactivity between the multiple line chart and the bar chart. This interactivity currently only works in one way: actions on the bar chart influence the line graph. I want to have a little bit of interactivity the other way around. Tomorrow, I will have to fix the final bugs such as text alignment and the transition of the titles in the line chart. Also, the colors of the highlight in the second datamap need to be changed: at the moment, this color is the same color as a color used in the map to indicate a certain degree of educational attainment.
+Added a basic legend, but it is not yet exactly what i wanted. Added interactivity between the multiple line chart and the bar chart. This interactivity currently only works in one way: actions on the bar chart influence the line graph. I want to have a little bit of interactivity the other way around. Tomorrow, I will have to fix the final bugs such as text alignment and the transition of the titles in the line chart. Also, the colors of the highlight in the second datamap need to be changed: at the moment, this color is the same color as a color used in the map to indicate a certain degree of educational attainment (fixed on day 13).
 
 ## Day 13 (Wed)
-Keeping the legend as they are. The fillkeys functions do not seem to work properly, will have to look at them. 
+Keeping the legend as they are. The fillkeys functions do not seem to work properly, will have to look at them. Fixed the fillKey problem.
+Implemented interactivity between the line graph and the bar chart.
+
+## Day 14 (Thu)
+Hackaton.
+
+## Day 15 (Fri)
+Adding text to the webpage. The site and visualisations are finished now. **To do:** Get the visualisations in different files. Keep in mind that some functions are shared by all visualisations, such as for instance the gridLine() function. If this function goes well when in a separate file, maybe one of the the lineScales() and scalesLines() functions could be removed. Also, comments in the datamaps.

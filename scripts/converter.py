@@ -15,14 +15,14 @@ def input_read(input):
     with open(input, encoding='utf-8-sig') as f:
         reader = csv.DictReader(f, delimiter= ";")
         fieldnames = reader.fieldnames
-        data_dict = {str(key): [] for key in fieldnames}
+        data_dict = {str(key): "" for key in fieldnames}
 
         for i, row in enumerate(reader):
             for key in fieldnames:
-                if row[key] == '':
-                    continue
-                else:
-                    data_dict[key].append(row[key])
+                # if row[key] == '':
+                #     continue
+                # else:
+                data_dict[key] = row[key]
 
     return data_dict, fieldnames
 
@@ -55,14 +55,16 @@ def to_json(data_dict, fieldnames, json_file):
 
     with open(json_file, 'w') as f:
 
-        head = 'Short Name'
-        json_dict = {str(key): "" for key in data_dict[head]}
+        # head = 'Short Name'
+        # json_dict = {str(key): "" for key in data_dict[head]}
+        json_dict = data_dict
 
-        for index, country in enumerate(data_dict[head]):
-            json_dict[country] = data_dict[fieldnames[0]][index]
+        # for index, country in enumerate(data_dict[head]):
+        #     json_dict[country] = data_dict[fieldnames[0]][index]
 
         f.write(json.dumps(json_dict))
 
+    print(json_dict)
     return True
 
 

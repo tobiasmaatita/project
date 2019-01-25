@@ -154,6 +154,13 @@ li a
   color: black;
 }
 
+#sourcesList a
+{
+  font-family: helvetica;
+  text-decoration: underline;
+  color: blue;
+}
+
 #pageTitle
 {
   /* border: 1px solid blue; */
