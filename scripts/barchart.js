@@ -141,7 +141,9 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
        };
        /** keep track of which lines are being shown and make sure there is a
            possibility to reset */
-       SELECTED.push(num);
+       if (SELECTED.indexOf(num) < 0) {
+         SELECTED.push(num);
+       };
        CLICKED = true;
 
        resetButton(width);
@@ -305,6 +307,6 @@ function noBars(country, barChart, margin, height, width) {
           .transition()
             .delay(transDuration + 50)
             .text('No data available');
-            
+
   return;
 };

@@ -57,10 +57,10 @@ Keeping the legend as they are. The fillkeys functions do not seem to work prope
 Implemented interactivity between the line graph and the bar chart.
 
 ## Day 14 (Thu)
-Hackaton.
+Hackathon.
 
 ## Day 15 (Fri)
-Adding text to the webpage. The site and visualisations are finished now. **To do:** Get the visualisations in different files. Keep in mind that some functions are shared by all visualisations, such as for instance the gridLine() function. If this function goes well when in a separate file, maybe one of the the lineScales() and scalesLines() functions could be removed. Also, comments in the datamaps.
+Adding text to the webpage. The site and visualisations are finished now. **To do:** Get the visualisations in different files. Keep in mind that some functions are shared by all visualisations, such as for instance the gridLine() function. If this function goes well when in a separate file, maybe one of the the lineScales() and scalesLines() functions could be removed. Also, comments in the datamaps (Both Fixed on day 16).
 
 ## Day 16 (Mon)
-Visualisations are now in different files. Datamaps are commented. The site is pretty much finalised; now working on the repository and other requirements such as the final report and a new README.md.
+Visualisations are now in different files. Datamaps are commented. The site is pretty much finalised; now working on the repository and other requirements such as the final report and a new README.md. Fixed a few bugs.
