@@ -6,7 +6,7 @@ Minor Programmeren, Final Project (Winter 2019)
 Nowadays, education is widely regarded as a human right. It is expected of governments to provide its citizens with accessible education, whereas citizens are expected to attain a certain level of education. However, educational inequality still exists in the world of today. My final project illustrates the educational inequality throughout the years, by first exploring the worldwide literacy rate and mirroring it to the highest level of education in a country.
 
 #### Screenshots
-The webpage can be found [here](tobiasmaatita.github.io/project/).
+The webpage can be found [here](https://tobiasmaatita.github.io/project/).
 Some screenshots of the page:  
 ![Literacy line](doc/lineLiteracy.png)
 ![Literacy map](doc/mapLiteracy.png)
