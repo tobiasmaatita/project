@@ -7,7 +7,10 @@ Nowadays, education is widely regarded as a human right. It is expected of gover
 
 #### Screenshots
 Some screenshots of the page:  
-<img title = "Literacy line chart" src="doc/lineChart" width="150" style="max-width:100%;">
+<img title = "Literacy line chart" src="doc/lineLiteracy.png" height=200 style="max-width:100%;">
+<img title = "Literacy map" src="doc/mapLiteracy.png" height=200 style="max-width:100%;">  
+<img title = "Attainment map" src="doc/mapAttainment.png" height=200 style="max-width:100%;">
+
 
 
 #### Repository Contents
