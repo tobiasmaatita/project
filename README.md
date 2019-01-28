@@ -6,6 +6,8 @@ Minor Programmeren, Final Project (Winter 2019)
 Nowadays, education is widely regarded as a human right. It is expected of governments to provide its citizens with accessible education, whereas citizens are expected to attain a certain level of education. However, educational inequality still exists in the world of today. My final project illustrates the educational inequality throughout the years, by first exploring the worldwide literacy rate and mirroring it to the highest level of education in a country.
 
 #### Screenshots
+Some screenshots of the page:  
+<img title = "Literacy line chart" src="doc/lineChart" width="150" style="max-width:100%;">
 
 
 #### Repository Contents
@@ -13,8 +15,8 @@ All the used data can be found in the [data](https://github.com/tobiasmaatita/pr
 This folder contains the following:
 * D3 folder, holding all the D3 scripts needed for the visualisations;
 * Static folder, holding the CSS stylesheet.
-* Converter.py, a program that converts .csv files to .json files. This program needs some small modifications to fit the input file. Therefore, the script might seem incomplete.
-* .js scripts. These scripts hold the contents of the site. Each script represents a different visualisation or layout. 
+* converter.py, a program that converts .csv files to .json files. This program needs some small modifications to fit the input file.
+* .js scripts. These scripts hold the contents of the site. Each script represents a different visualisation or layout.
 
 ## Acknowledgements
 The content of the site was based on [this](https://ourworldindata.org/global-rise-of-education) investigative piece by Max Roser and Esteban Ortiz-Ospina. The data used for the visualisation can be found on the [UNESCO site](http://data.uis.unesco.org/index.aspx?queryid=166&lang=en) and on the site accompanying [this](https://econpapers.repec.org/article/eeedeveco/v_3a122_3ay_3a2016_3ai_3ac_3ap_3a147-169.htm) research report by Lee and Lee (2016). The data can be found [here](http://www.barrolee.com/Lee_Lee_LRdata_dn.htm).  
