@@ -7,11 +7,10 @@ Nowadays, education is widely regarded as a human right. It is expected of gover
 
 #### Screenshots
 Some screenshots of the page:  
-<img title = "Literacy line chart" src="doc/lineLiteracy.png" height=200 style="max-width:100%;">
-<img title = "Literacy map" src="doc/mapLiteracy.png" height=200 style="max-width:100%;">  
-<img title = "Attainment map" src="doc/mapAttainment.png" height=200 style="max-width:100%;">
-
-
+![Literacy line](doc/lineLiteracy.png)
+![Literacy map](doc/mapLiteracy.png)
+![Attainment map](doc/mapAttainment.png)  
+![Attainment charts](doc/chartsAttainment.png)
 
 #### Repository Contents
 All the used data can be found in the [data](https://github.com/tobiasmaatita/project/tree/master/Data) folder. The .csv files contain the raw data, whereas the .json files contain the processed data used for the visualisations. The [doc](https://github.com/tobiasmaatita/project/tree/master/doc) folder contains all pictures used in this repository. The code can be found in the [scripts](https://github.com/tobiasmaatita/project/tree/master/scripts) folder.
