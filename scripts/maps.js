@@ -205,7 +205,8 @@ function attainmentMap(dataAttainment, margin, heights, widths) {
 
       // scroll to chart
       var element = document.getElementById('figureFour');
-      element.scrollIntoView({behavior: 'smooth'});
+      // element.scrollIntoView({behavior: 'smooth'});
+      element.scrollIntoView();
 
       if (!dataAttainment[d.id]) {
         noBars(d, barChart, margin, heights.svgFour,
