@@ -91,6 +91,24 @@ ol
   padding-left: 0;
 }
 
+.footer
+{
+  position: absolute;
+  left: -17%;
+  width: 167%;
+  height: auto;
+  text-align: center;
+  color: black;
+  background-color: darkgrey;
+  opacity: 0.8;
+}
+
+.footer p
+{
+  margin-bottom: 0;
+}
+
+
 /* text */
 .text p
 {

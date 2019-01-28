@@ -218,5 +218,11 @@ function d3Stuff() {
            .attr('href', 'http://data.uis.unesco.org/index.aspx?queryid=166&lang=en')
            .attr('target', '_blank')
            .text('UNESCO data on world literacy');
+
+  content.append('div')
+         .attr('class', 'footer')
+           .append('p')
+           .text('Tobias Maätita // 10730109 // Minor Programmeren // Final Project (Data Winter, 2019)');
+
   return;
 };
