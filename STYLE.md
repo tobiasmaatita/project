@@ -20,6 +20,8 @@ tidier code.
 * Indentation: two spaces (one tab).
 
 ### Sources
+Several sources on javascript style.
+
 * [airbnb](https://github.com/airbnb/javascript)
 * [Google](https://google.github.io/styleguide/jsguide.html)
 * [Idiomatic](https://github.com/rwaldron/idiomatic.js/)
