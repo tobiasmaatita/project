@@ -1,5 +1,16 @@
+/** Name: Tobias Maätita
+    Student No.: 10730109
+
+    Module containing the script to the layout of the webpage. Uses d3 to make
+    divs and more.
+*/
+
+
 function d3Stuff() {
-// Layout of the page.
+/** Layout of the page.
+
+    Does not require any input and has no output. 
+*/
 
   var wrapper = d5.select('.wrapper');
   wrapper.append('div')

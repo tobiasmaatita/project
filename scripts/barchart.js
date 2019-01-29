@@ -1,8 +1,33 @@
-function barchart(barChart, data, country, year, margin, height, width, transDuration) {
-/** Make a barchart. When called from the updateBar function, this will have a
-      shorter transition duration (transDuration) than when called from the datamap
-      to enable a smooth transition. */
+/** Name: Tobias Maätita
+    Student No.: 10730109
 
+    Module containing the scripts for building a barchart on the webpage.
+    Contains several functions:
+    barchart: build a barchart, calls all other functions in this script.
+    updateBar: update the barchart when the slider changes.
+    barScales: get the scales of the barchart.
+    barAxes: get the axes of the barchart.
+    axesText: text on the barchart.
+    noBars: removes the barchart when there is no data.
+*/
+
+function barchart(barChart, data, country, year, margin, height, width, transDuration) {
+/** Make a barchart.
+
+    Arguments:
+    barChart -- a d3 selection object, holding the svg on which the barchart is
+              to be drawn.
+    data -- a JSON object holding the data.
+    country -- an object passed on by the datamap, holding the country's id and
+             name.
+    year -- an integer corresponding to the selected year.
+    margin -- an object holding the margins.
+    height -- self-explanatory.
+    width -- self-explanatory.
+    transDuration -- integer corresponding to the duration of the transition.
+                     Will only be passed on when called from the updateBar function
+                     as the update needs to be quicker.
+*/
   transDuration = transDuration || 750;
   d5.select('#noData')
     .remove();
@@ -164,9 +189,12 @@ function barchart(barChart, data, country, year, margin, height, width, transDur
 };
 
 
-function updateBar(sliderTime, barInfo) {
-// Update the barchart to the selected year.
+function updateBar(barInfo) {
+/** Update the barchart to the selected year.
 
+    Arguments:
+    barInfo -- object containing all information needed to make the barchart.
+*/
   var year = CURRENT_YEAR,
       transDuration = 10;
   barchart(barInfo.chart, barInfo.data, barInfo.country, year, barInfo.margin,
@@ -178,8 +206,16 @@ function updateBar(sliderTime, barInfo) {
 
 function barScales(values, margin, height, width) {
 /** Make scales. The xTickScale serves to align the bars and
-      their ticks. */
+    their ticks.
 
+    Arguments:
+    values -- an array of the values that are used by the barchart function.
+    margin -- an object holding the margins.
+    height -- self-explanatory.
+    width -- self-explanatory.
+
+    Outputs an object containing the scales for the x-axes, y-axes, and the xTickScale.
+*/
   var xScaleBar = d5.scaleLinear()
                     .domain([0, values.length - 1])
                     .range([margin.left + margin.bar, width - margin.right]);
@@ -196,8 +232,14 @@ function barScales(values, margin, height, width) {
 
 
 function barAxes(keys, scales) {
-// Make axes.
+/** Make axes for the barchart.
 
+    Arguments:
+    keys -- the keys on the x-axis.
+    scales -- object holding the scales for the axes.
+
+    Outputs an object holding both axes functions.
+*/
   var xAxisBar = d5.axisBottom()
                    .ticks(keys.length)
                    .tickFormat(function(d) {
@@ -212,7 +254,19 @@ function barAxes(keys, scales) {
 
 
 function axesText(barChart, scales, margin, height, width, country, year) {
-// provide text to the axes
+/** Provide text to the axes of the barchart.
+
+    Arguments:
+    barChart -- a d3 selection object, holding the svg on which the barchart is
+                to be drawn.
+    scales -- object holding the scales for the axes.
+    margin -- an object holding the margins.
+    height -- self-explanatory.
+    width -- self-explanatory.
+    country -- an object passed on by the datamap, holding the country's id and
+               name.
+    year -- an integer corresponding to the selected year.
+*/
 
   barChart.append('text')
           .attr('class', 'figTitle')
@@ -244,9 +298,11 @@ function axesText(barChart, scales, margin, height, width, country, year) {
             .text(country.properties.name + ', ' + year);
   barChart.select('#xTitle')
           .transition()
+            .style('opacity', 1)
             .text('Educational level');
   barChart.select('#yTitle')
           .transition()
+            .style('opacity', 1)
             .text('Percentage');
   barChart.select('#figureFourName')
           .transition()
@@ -258,8 +314,17 @@ function axesText(barChart, scales, margin, height, width, country, year) {
 
 function noBars(country, barChart, margin, height, width) {
 /** If there is no data, don't make a chart. Rather, let the user know
-      that there is no data. */
+    that there is no data.
 
+    Arguments:
+    country -- an object passed on by the datamap, holding the country's id and
+               name.
+    barChart -- a d3 selection object, holding the svg on which the barchart is
+                to be drawn.
+    margin -- an object holding the margins.
+    height -- self-explanatory.
+    width -- self-explanatory.
+*/
   var transDuration = 300;
 
   // no graph

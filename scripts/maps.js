@@ -1,79 +1,27 @@
-function addCountryCodes(data, codes) {
-// Add country codes to dictionary to use in datamap.
+/** Module containing the scripts for buiding two different datamaps on the
+    webpage. Contains several functions:
 
-  var allCountries = Object.keys(codes),
-      allDataKeys = Object.keys(data);
-  var newDataset = new Object;
-
-  for (var i = 0; i < allCountries.length; i++) {
-    if (data[allCountries[i]]) {
-      newDataset[codes[allCountries[i]]] = data[allCountries[i]]
-    };
-  };
-
-  return newDataset;
-};
-
-
-function fillkeysAttainment(data) {
-// Set the fillkeys for the initial attainment map.
-
-  var countries = Object.keys(data),
-      fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
-                  'FIVE', 'SIX'];
-
-  for (var i = 0; i < countries.length; i++) {
-    var attainment = data[countries[i]]['1870']['years of education total'];
-    attainment = attainment / 2;
-    attainment -= attainment % 1;
-    if (attainment < 0) { attainment = 0; };
-    data[countries[i]]['fillKey'] = fillKeys[attainment];
-  };
-
-  return data;
-};
-
-
-function fillkeysLiteracy(data) {
-// Set the fillkeys for the literacy map.
-
-  var countries = Object.keys(data),
-      fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
-                  'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE'];
-
-  for (var i = 0; i < countries.length; i++) {
-    var literacy = data[countries[i]]['Literacy rate (%)'];
-    literacy = (literacy - literacy % 10) / 10;
-    if (literacy === 10) { literacy = 9; };
-    data[countries[i]]['fillKey'] = fillKeys[literacy];
-  };
-
-  return data;
-};
-
-
-function colorFill(data, id, year) {
-/** Helper function to the updateMap function. Sets the colors to fill the
-    countries. */
-
-  var info = data[id];
-  var colors = d5.schemeRdYlGn[7];
-
-  if (info) {
-    var attainment = data[id][year]['years of education total'];
-    attainment = attainment / 2;
-    attainment -= attainment % 1;
-    if (attainment < 0) { attainment = 0; };
-    return colors[attainment];
-  } else {
-    return 'grey';
-  };
-};
+    addCountryCodes -- add the country codes to the dataset in order for the
+                       datamap to work with them.
+    fillkeysAttainment -- add the fillkeys to the attainment dataset for the
+                          initial datamap.
+    fillkeysLiteracy -- add the fillkeys to the literacy dataset to color the
+                        datamap.
+    colorFill -- while updating the map, color the countries.
+    literacyMap -- draw the literacy datamap.
+    attainmentMap -- draw the attainment datamap.
+    slider -- draw a slider on the webpage.
+    updateMap -- update the attainment datamap.
+*/
 
 
 function literacyMap(dataLiteracyCountry) {
 /** Make a map illustrating the worldwide literacy rate throughout the years. Use
-    data on literacy per country (dataLiteracyCountry). */
+    data on literacy per country (dataLiteracyCountry).
+
+    Arguments:
+    dataLiteracyCountry -- JSON object holding the data on literacy per country.
+*/
 
   var colors = d5.schemeBrBG[10];
   var mapLiteracy = new Datamap({
@@ -135,7 +83,15 @@ function literacyMap(dataLiteracyCountry) {
 
 function attainmentMap(dataAttainment, margin, heights, widths) {
 /** Make a map illustrating the education attainment throughout the years. Use
-    data on attainment (dataAttainment). */
+    data on attainment (dataAttainment).
+
+    Arguments:
+    dataAttainment -- a JSON object holding the data on educational attainment
+                      per country.
+    marign -- an object holding the margins.
+    heights -- an object holding the heights.
+    widths -- an object holding the widths.
+*/
 
   // ready colors and slider
   var colorsAttainment = d5.schemeRdYlGn[7];
@@ -215,6 +171,7 @@ function attainmentMap(dataAttainment, margin, heights, widths) {
                 widths.svgFive)
       } else {
 
+        var linescales = 0;
         // get info to pass on to the functions
         var barInfo = {chart: barChart, data: dataAttainment, country: d,
                        year: year, margin: margin, width: widths.svgFour,
@@ -238,7 +195,12 @@ function attainmentMap(dataAttainment, margin, heights, widths) {
       };
 
       // the slider must not get back to 1870 when a new country is selected
-      slider(dataAttainment, barInfo, lineInfo, linescales);
+      if (linescales === 0) {
+        slider(dataAttainment, barInfo, lineInfo);
+      } else {
+        slider(dataAttainment, barInfo, lineInfo, linescales);
+      };
+
       d5.selectAll('#sliderAttainment text')
         .style('opacity', 1);
     });
@@ -266,15 +228,23 @@ function attainmentMap(dataAttainment, margin, heights, widths) {
 };
 
 
-function slider(data_dict, barInfo, lineInfo, linescales) {
-// Add a slider.
+function slider(dataDict, barInfo, lineInfo, linescales) {
+/** Add a slider to the webpage.
 
+    Arguments:
+    dataDict -- a JSON object holding the data on educational attainment.
+    barInfo -- an object holding the information needed to make a barchart (optional).
+    lineInfo -- an object holding the information needed to make a linechart (optional).
+    linescales -- an object holding the scales to make a linechart (optional).
+
+    Outputs the slider information, which can be used to extract the current year.
+*/
   d5.select('#sliderAttainment')
     .remove();
 
   var years = new Array,
       ticks = new Array,
-      dataYears = Object.keys(data_dict['AUS']);
+      dataYears = Object.keys(dataDict['AUS']);
   for (var i = 0; i < dataYears.length; i++) {
     if (dataYears[i] != 'fillKey') {
       years[i] = Number(dataYears[i]);
@@ -308,17 +278,17 @@ function slider(data_dict, barInfo, lineInfo, linescales) {
     .default(CURRENT_YEAR)
     .on('onchange', function(val) {
       d5.selectAll('#sliderAttainment text')
-        .style('opacity', 1); // fixes a weird bug where the selected year is not
-                              //  shown under the slider
+        .style('opacity', 1); /** fixes a weird bug where the selected year is not
+                                  shown under the slider */
       d5.select('#figureThreeName')
         .transition()
           .text('Figure 3: Education attainment in the year ' + val);
-      var current = updateMap(data_dict, sliderTime);
+      var current = updateMap(dataDict, sliderTime);
       CURRENT_YEAR = current.value();
       if (barInfo != 0) {
 
         // if the bar- and linecharts are shown, update them
-        updateBar(sliderTime, barInfo);
+        updateBar(barInfo);
         updateLines(sliderTime, lineInfo, linescales);
       };
     });
@@ -343,14 +313,121 @@ function slider(data_dict, barInfo, lineInfo, linescales) {
 };
 
 
-function updateMap(data_dict, sliderTime) {
-// Update the map using the values passed in through the slider.
+function addCountryCodes(data, codes) {
+/** Add country codes to data to use in datamap.
+
+    Keywords:
+    data -- JSON object holding the data.
+    codes -- JSON object holding the country names and the corresponding codes.
+
+    Outputs a JSON object which is the original dataset but now including the
+    correct country code.
+*/
+  var allCountries = Object.keys(codes),
+      allDataKeys = Object.keys(data);
+  var newDataset = new Object;
+
+  for (var i = 0; i < allCountries.length; i++) {
+    if (data[allCountries[i]]) {
+      newDataset[codes[allCountries[i]]] = data[allCountries[i]]
+    };
+  };
+
+  return newDataset;
+};
+
+
+function fillkeysAttainment(data) {
+/** Set the fillkeys for the initial attainment map.
+
+    Arguments:
+    data -- JSON object holding the data.
+
+    Outputs a JSON object which is the old dataset but now including the fillKeys.
+*/
+  var countries = Object.keys(data),
+      fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
+                  'FIVE', 'SIX'];
+
+  for (var i = 0; i < countries.length; i++) {
+    var attainment = data[countries[i]]['1870']['years of education total'];
+    attainment = attainment / 2;
+    attainment -= attainment % 1;
+    if (attainment < 0) { attainment = 0; };
+    data[countries[i]]['fillKey'] = fillKeys[attainment];
+  };
+
+  return data;
+};
+
+
+function fillkeysLiteracy(data) {
+/** Set the fillkeys for the literacy map.
+
+    Arguments:
+    data -- JSON object holding the data.
+
+    Outputs a JSON object which is the old dataset but now including the fillKeys
+*/
+  var countries = Object.keys(data),
+      fillKeys = ['ZERO', 'ONE', 'TWO', 'THREE', 'FOUR',
+                  'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE'];
+
+  for (var i = 0; i < countries.length; i++) {
+    var literacy = data[countries[i]]['Literacy rate (%)'];
+    literacy = (literacy - literacy % 10) / 10;
+    if (literacy === 10) { literacy = 9; };
+    data[countries[i]]['fillKey'] = fillKeys[literacy];
+  };
+
+  return data;
+};
+
+
+function colorFill(data, id, year) {
+/** Helper function to the updateMap function. Sets the colors to fill the
+    countries.
+
+    Arguments:
+    data -- a JSON object holding the data.
+    id -- string representing the country code of the selected country.
+    year -- integer representing the year to show.
+
+    Outputs the new fill color, which is either grey for 'no data' or one of
+    the colors in the colorscheme.
+*/
+
+  var info = data[id];
+  var colors = d5.schemeRdYlGn[7];
+
+  if (info) {
+    var attainment = data[id][year]['years of education total'];
+    attainment = attainment / 2;
+    attainment -= attainment % 1;
+    if (attainment < 0) { attainment = 0; };
+    return colors[attainment];
+  } else {
+    return 'grey';
+  };
+};
+
+
+function updateMap(dataDict, sliderTime) {
+/** Update the map using the values passed in through the slider.
+
+    Arguments:
+    dataDict -- a JSON object holding the data on educational attainment.
+    sliderTime -- an object holding the information on the slider, to extract
+                  the current year.
+
+    Outputs an object sliderTime, which can be used to extract the current year.
+*/
 
   var year = sliderTime.value();
   d5.select('#figureThree')
     .selectAll('path')
     .style('fill', function(d) {
-      return colorFill(data_dict, d.id, year);
+      return colorFill(dataDict, d.id, year);
     });
 
   return sliderTime;

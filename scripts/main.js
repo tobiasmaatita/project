@@ -1,5 +1,18 @@
-function main() {
+/** Name: Tobias Maätita
+    Student No.: 10730109
 
+    Module containing the main function. This function is called on loading the
+    webpage. Contains one function:
+
+    main: preprocess the data and call all visualisations.
+*/
+
+
+function main() {
+/** Final preprocessing and calling the visualisations.
+
+    Takes no input arguments and has no output.
+*/
   d3Stuff();
 
   // global variables.

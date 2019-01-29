@@ -1,7 +1,28 @@
-function linechart(data_dict, margin, width, height){
-// Make a line chart.
+/** Name: Tobias Maätita
+    Student No.: 10730109
 
-  var years = Object.keys(data_dict);
+    Module containing the scripts to make a linechart depicting the worldwide
+    literacy rate throughout the past two centuries. Contains several functions:
+
+    linechart: make the linechart. Calls all other functions in this module.
+    lineScales: make the scales for the linechart.
+    lineAxes: make the axes for the linechart.
+    gridLine: provide the linechart with horizontal gridlines.
+    lineText: provide the linechart with text at the axes and a title.
+    dots: draw dots on the datapoints to be connected by the line.
+*/
+
+
+function linechart(dataDict, margin, width, height){
+/** Make a line chart.
+
+    Arguments:
+    dataDict -- a JSON object holding the data on worldwide literacy.
+    margin -- an object holding the margins.
+    width -- self-explanatory.
+    height -- self-explanatory.
+*/
+  var years = Object.keys(dataDict);
   for (var i = 0; i < years.length; i++) {
     years[i] = Number(years[i]);
   };
@@ -28,7 +49,7 @@ function linechart(data_dict, margin, width, height){
                .curve(d5.curveMonotoneX);
 
   var dataset = d5.range(years.length).map(function(d, i) {
-    return {"y": data_dict[years[i]]};
+    return {"y": dataDict[years[i]]};
   });
 
   var lineTip = d5.tip()
@@ -36,7 +57,7 @@ function linechart(data_dict, margin, width, height){
     .offset([-10, 0])
     .html(function(d, i) {
       return "<strong>" + years[i] + "</strong> <br><span>" +
-             data_dict[years[i]]+ " %" + "</span>";
+             dataDict[years[i]]+ " %" + "</span>";
     });
   lineWorld.call(lineTip);
 
@@ -52,7 +73,7 @@ function linechart(data_dict, margin, width, height){
            .attr('transform', 'translate(' + margin.left + ', 0)')
            .call(axes.y);
   gridLine(lineWorld, scales, margin, width);
-  dots(lineWorld, years, data_dict, lineTip, scales);
+  dots(lineWorld, years, dataDict, lineTip, scales);
 
   var path = lineWorld.append('path')
                       .datum(dataset)
@@ -74,7 +95,16 @@ function linechart(data_dict, margin, width, height){
 
 
 function lineScales(years, margin, width, height) {
+/** Make the scales for the line chart.
 
+    Arguments:
+    years -- an array containing all years of which there is data.
+    margin -- an object holding the margins.
+    width -- self-explanatory.
+    height -- self-explanatory.
+
+    Outputs an object holding the scales.
+*/
   var xScaleLine = d5.scaleLinear()
                      .domain([d5.min(years), d5.max(years)])
                      .range([margin.left, width - margin.right]),
@@ -87,7 +117,13 @@ function lineScales(years, margin, width, height) {
 
 
 function lineAxes(scales) {
+/** Make the axes of the linechart.
 
+    Arguments:
+    scales -- an object containing the scales of the axes.
+
+    Outputs an object holding the axes functions.
+*/
   var xAxisLine = d5.axisBottom()
                     .scale(scales.x)
                     .ticks(12)
@@ -102,8 +138,16 @@ function lineAxes(scales) {
 
 
 function gridLine(svg, scales, margin, width, transDuration, barWidth) {
-// Add a grid to the figure.
+/** Add a horizontal grid to the figure. Also used in the multipleLine and the
+    barchart function.
 
+    Arguments:
+    svg -- a selection object holding the svg where the figure is to be drawn.
+    scales -- an object holding the scales of the axes.
+    margin -- an object holding the margins.
+    transDuration -- integer representing the duration of the transition (optional).
+    barWidth -- integer representing the width of the bar (optional).
+*/
   transDuration = transDuration || 0;
   barWidth = barWidth || 0;
 
@@ -146,8 +190,15 @@ function gridLine(svg, scales, margin, width, transDuration, barWidth) {
 
 
 function lineText(lineWorld, scales, margin, height) {
-// Add text to the axes.
+/** Provide the axes with text.
 
+    Arguments:
+    lineWorld -- a selection object holding the svg on wich the linechart is to
+                 be drawn.
+    scales -- an object holding the scales of the chart.
+    margin -- an object holding the margins.
+    height -- self-explanatory.
+*/
   lineWorld.append('text')
            .attr('class', 'figTitle')
            .attr('id', 'lineTitle')
@@ -184,13 +235,23 @@ function lineText(lineWorld, scales, margin, height) {
 };
 
 
-function dots(lineWorld, years, data_dict, lineTip, scales) {
+function dots(lineWorld, years, dataDict, lineTip, scales) {
+/** Draw dots on the line.
+
+    Arguments:
+    lineWorld -- a selection object holding the svg on which the linechart be
+                 drawn.
+    years -- an array holding the years of which there is data.
+    dataDict -- a JSON object holding the data on literacy.
+    lineTip -- a tooltip object.
+    scales -- an object holding the scales of the linechart. 
+*/
 
   // preprocess data to use for dots
   var dotsData = new Array;
   for (var i = 0; i < years.length; i++) {
     var year = years[i];
-    dotsData[i] = {year: year, rate: data_dict[years[i]]};
+    dotsData[i] = {year: year, rate: dataDict[years[i]]};
   };
 
   var dots = lineWorld.selectAll("dot")

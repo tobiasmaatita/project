@@ -1,17 +1,30 @@
 #!/usr/bin/env python
 # Name: Tobias Maätita
 # Student number: 1073019
-""" Convert .csv files to .json files """
+""" Module containing a program to convert .csv files to .json files.
+    Contains several functions:
+
+    input_read: read the .csv file and make a dictionary of it.
+    preprocess: preprocess the data. This function needs modification for each
+                new dataset.
+    to_json: write the dictionary to a .json file.
+"""
 import csv
 import json
 import sys
 import numpy as np
 
+
 def input_read(input):
     """
     Parse the dataset and store in a dict to read later.
-    """
 
+    Keyword arguments:
+    input -- a path to the input file.
+
+    Outputs a dictionary containing the data from the input file and an array
+    of fieldnames.
+    """
     with open(input, encoding='utf-8-sig') as f:
         reader = csv.DictReader(f, delimiter= ";")
         fieldnames = reader.fieldnames
@@ -31,16 +44,21 @@ def preprocess(data_dict):
     """
     Preprocess data to use in json file, for instance change strings to floats
     or integers for calculations.
+
+    Keyword arguments:
+    data_dict -- a dictionar containing the raw data from the input file.
+
+    Outputs a dictionary which is preprocessed and ready to be written to a
+    .json file.
     """
-    #
-    # # literacy_rate_by_country.csv:
+    ## literacy_rate_by_country.csv:
     # float_keys = ['Literate world population (people)', 'Illiterate world population (people)']
-    # # int_keys = ['Year']
-    #
-    # # ints:
-    # # for key in int_keys:
-    # #     data_dict[key] = [int(value) for value in data_dict[key]]
-    #
+    # int_keys = ['Year']
+
+    ## ints:
+    # for key in int_keys:
+    #     data_dict[key] = [int(value) for value in data_dict[key]]
+
     # # floats:
     # for key in float_keys:
     #     data_dict[key] = [float(value) for value in data_dict[key]]
@@ -51,8 +69,14 @@ def preprocess(data_dict):
 def to_json(data_dict, fieldnames, json_file):
     """
     Write the json file.
-    """
 
+    Keyword arguments:
+    data_dict -- a dictionay holding the preprocessed data to be written to the
+                .json file.
+    fieldnames -- an array of fieldnames which can be used to arrange the .json
+                  file.
+    json_file -- the path to the new .json file.
+    """
     with open(json_file, 'w') as f:
 
         # head = 'Short Name'
@@ -64,7 +88,6 @@ def to_json(data_dict, fieldnames, json_file):
 
         f.write(json.dumps(json_dict))
 
-    print(json_dict)
     return True
 
 

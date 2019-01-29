@@ -1,6 +1,36 @@
-function multipleLine(multLines, data, country, year, margin, height, width, transDuration) {
-// Make a multiple line chart
+/** Name: Tobias Maätita
+    Student No.: 10730109
 
+    Module containing the scripts for building a multiple linechart.
+    Contains several functions:
+
+    multipleLine: make a multiple linechart.
+    getDatasetLines: reformat the data to use for the multiple linechart.
+    axesLines: make axes for the multiple linechart.
+    linesLines: set the lines for the multiple linechart.
+    linesText: provide text to the axes and a title.
+    noLines: if there is no data, do not show any lines.
+    updateLines: update the indicator line when scrolling the slider.
+    resetButton: set a reset button when selecting lines.
+    removeReset: remove the reset button after clicking.
+*/
+
+
+function multipleLine(multLines, data, country, year, margin, height, width,
+                      transDuration) {
+/** Make a multiple line chart.
+
+    Arguments:
+    multlines -- a selection object holding the svg where the chart be drawn.
+    data -- a JSON object holding the data on educational attainment.
+    year -- integer representing the current year.
+    margin -- an object holding the margins.
+    height -- self-explanatory.
+    width -- self-explanatory.
+    transDuration -- integer representing the duration of a transition (optional).
+
+    Outputs the scales of the linechart's axes.
+*/
   d5.selectAll('#noData')
     .remove();
   d5.selectAll('.indicator')
@@ -91,8 +121,8 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
   multLines.selectAll('.line')
            .on('mouseover', function(d, i) {
 
-             // hovering the line shows the corresponding percentage of the
-             //  population in the bar chart.
+             /** hovering the line shows the corresponding percentage of the
+                 population in the bar chart. */
              var currYear = 0,
                  num = i,
                  bars = d5.select('#figureFour');
@@ -134,8 +164,15 @@ function multipleLine(multLines, data, country, year, margin, height, width, tra
 
 
 function getDatasetLines(dataNeeded, years) {
-// Reformat the data to make a multiple line chart
+/** Reformat the data to make a multiple linechart. Each datapoint should be an
+    object holding the year and the percentage of each type, i.e. for each line.
 
+    Arguments:
+    dataNeeded -- an object holding the data for all years.
+    years -- an array holding the years on which there is data.
+
+    Outputs the new dataset.
+*/
   var dataset = new Array;
 
   // each datapoint contains the year and its percentages
@@ -155,7 +192,13 @@ function getDatasetLines(dataNeeded, years) {
 
 
 function axesLines(scales) {
+/** Make the axes for the multiple linechart.
 
+    Arguments:
+    scales -- an object holding the scales functions for the multiple linechart.
+
+    Outputs an object holding the scales functions for the multiple linecharts.
+*/
   var xAxisLine = d5.axisBottom()
                     .scale(scales.x)
                     .ticks(12)
@@ -170,8 +213,16 @@ function axesLines(scales) {
 
 
 function linesLines(multLines, scales, years) {
-  // Ready the lines
+/** Set the lines for the multiple linechart.
 
+    Arguments:
+    multLines -- a selection object holding the svg where the multiple linechart
+                 be drawn.
+    scales -- an object holding the scales functions for the multiple linechart.
+    years -- an array holding the years of which there is data.
+
+    Outputs an object holding the line functions of the multiple linecharts.
+*/
   var lineUned = d5.line()
                    .x(function(d, i) {
                      return scales.x(years[i]);
@@ -222,8 +273,15 @@ function linesLines(multLines, scales, years) {
 
 
 function linesText(multLines, margin, scales, height) {
-  // Provide text to the axes.
+/** Provide text to the axes.
 
+    Arguments:
+    multLines -- a selection object holding the svg where the multiple linechart
+                 be drawn.
+    margin -- an object holding the margins.
+    scales -- an object holding the scales.
+    height -- self-explanatory.
+*/
   multLines.append('text')
            .attr('class', 'figTitle')
            .attr('id', 'multTitle')
@@ -259,8 +317,15 @@ function linesText(multLines, margin, scales, height) {
 
 function noLines(country, multLines, margin, height, width) {
 /** If there is no data, don't make a chart. Rather, let the user know
-    that there is no data. */
+    that there is no data.
 
+    Arguments:
+    country -- the selected country.
+    multLines -- a selection object holding the svg where the multiple line chart
+                 be drawn.
+    height -- self-explanatory.
+    width -- self-explanatory.
+*/
   var transDuration = 300;
 
   // no graph
@@ -288,6 +353,12 @@ function noLines(country, multLines, margin, height, width) {
            .transition()
              .duration(transDuration)
              .style('opacity', 0);
+  multLines.selectAll('#resetButton')
+           .transition()
+             .duration(transDuration)
+             .style('opacity', 0);
+  SELECTED = [];
+  CLICKED = false;
 
   if (multLines.select('.figTitle').empty()) {
     multLines.append('text')
@@ -317,9 +388,15 @@ function noLines(country, multLines, margin, height, width) {
 
 
 function updateLines(sliderTime, lineInfo, scales) {
-/** Update the multiple line chart: the indicator line
-      aligns itself with the year that is being shown in
-      the bar chart. */
+/** Update the multiple line chart: the indicator line aligns itself with the
+    year that is being shown in the bar chart.
+
+    Arguments:
+    sliderTime -- an object holding the slider's information, to be used to get
+                  the current year.
+    lineInfo -- an object holding all information to draw the multiple linechart.
+    scales -- an object holding the scales functions for the multiple linechart.
+*/
 
   // year is either 1870 or the current year
   var year = sliderTime.value();
@@ -341,8 +418,11 @@ function updateLines(sliderTime, lineInfo, scales) {
 
 
 function resetButton(width) {
-// clicking on the reset button brings back all the lines
+/** Clicking on the reset button brings back all the lines.
 
+    Arguments:
+    width -- self-explanatory.
+*/
   d5.select('#resetButton').remove();
   var linegraph = d5.select('#multipleLines');
   linegraph.append('g')
@@ -359,15 +439,27 @@ function resetButton(width) {
              SELECTED = [];
              CLICKED = false;
            });
+  linegraph.select('#resetButton')
+           .transition()
+             .style('opacity', 1);
+
+  // no reset needed when all lines are shown
   if (SELECTED.length === 4) {
     removeReset();
   };
+
+  return;
 };
 
 
 function removeReset() {
+/** Remove the reset button.
 
+    Takes no input arguments and outputs nothing.
+*/
   d5.selectAll('#resetButton').remove();
   SELECTED = [];
   CLICKED = false;
+
+  return;
 };
