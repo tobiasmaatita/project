@@ -72,7 +72,7 @@ def to_json(data_dict, fieldnames, json_file):
 
     Keyword arguments:
     data_dict -- a dictionay holding the preprocessed data to be written to the
-                .json file.
+                 .json file.
     fieldnames -- an array of fieldnames which can be used to arrange the .json
                   file.
     json_file -- the path to the new .json file.
