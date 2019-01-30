@@ -2,7 +2,7 @@
 This is the style guide I made for my final project of the Minor Programmeren.
 
 ### Eleven rules to follow
-1. Use camelCase
+* Use camelCase
 * Try to put a maximum of 80 characters on one line. This increases the readability
 of the code.
 * There are no unused variables in the code. This prevents confusion and makes for
