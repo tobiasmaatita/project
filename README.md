@@ -16,7 +16,7 @@ Some screenshots of the page:
 #### Repository Contents
 All the used data can be found in the [data](https://github.com/tobiasmaatita/project/tree/master/Data) folder. The .csv files contain the raw data, whereas the .json files contain the processed data used for the visualisations. The [doc](https://github.com/tobiasmaatita/project/tree/master/doc) folder contains all pictures used in this repository. The code can be found in the [scripts](https://github.com/tobiasmaatita/project/tree/master/scripts) folder.
 This folder contains the following:
-* D3 folder, holding all the D3 scripts needed for the visualisations;
+* d3 folder, holding all the D3 scripts needed for the visualisations;
 * Static folder, holding the CSS stylesheet.
 * converter.py, a program that converts .csv files to .json files. This program needs some small modifications to fit the input file.
 * .js scripts. These scripts hold the contents of the site. Each script represents a different visualisation or layout.
