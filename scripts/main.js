@@ -10,6 +10,7 @@
 
 function main() {
 /** Final preprocessing and calling the visualisations.
+    Contains three global variables.
 
     Takes no input arguments and has no output.
 */
