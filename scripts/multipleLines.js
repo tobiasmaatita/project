@@ -11,7 +11,7 @@
     linesText: provide text to the axes and a title.
     noLines: if there is no data, do not show any lines.
     updateLines: update the indicator line when scrolling the slider.
-    resetButton: set a reset button when selecting lines.
+    resetButton: set a reset button when selecting lines to show all lines again.
     removeReset: remove the reset button after clicking.
 */
 
