@@ -64,3 +64,6 @@ Adding text to the webpage. The site and visualisations are finished now. **To d
 
 ## Day 16 (Mon)
 Visualisations are now in different files. Datamaps are commented. The site is pretty much finalised; now working on the repository and other requirements such as the final report and a new README.md. Fixed a few bugs.
+
+## Day 17 (Tue)
+Fixed a final bug. Added a bit more text to the site. 
