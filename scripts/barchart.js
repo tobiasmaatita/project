@@ -267,7 +267,6 @@ function axesText(barChart, scales, margin, height, width, country, year) {
                name.
     year -- an integer corresponding to the selected year.
 */
-
   barChart.append('text')
           .attr('class', 'figTitle')
           .attr('id', 'barTitle')
