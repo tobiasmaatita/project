@@ -27,4 +27,4 @@ To make the data maps, I used the [Datamaps repository](http://datamaps.github.i
 
 
 ## Copyright
-This is a public domain release. Feel free to use any code from this repository. Please can consult the [license](https://github.com/tobiasmaatita/project/blob/master/LICENSE) for further information.
+This is a public domain release. Feel free to use any code from this repository. Please consult the [license](https://github.com/tobiasmaatita/project/blob/master/LICENSE) for further information.
