@@ -9,7 +9,7 @@
 function d3Stuff() {
 /** Layout of the page.
 
-    Does not require any input and has no output. 
+    Does not require any input and has no output.
 */
 
   var wrapper = d5.select('.wrapper');
@@ -158,6 +158,20 @@ function d3Stuff() {
                the years. The bar chart shows the distribution in a selected year. \
                Clicking on a bar will select the corresponding line. Add other \
                lines by clicking other bars, or reset by pressing the reset button.');
+  content.select('#educationAttainment')
+         .append('p')
+         .text('The maps clearly shows an apparent relation between the literacy \
+                rate in a country and the educational attainment. However, upon \
+                further inspection, a positive trend can be inferred: throughout \
+                the last few years, even in the problem countries, the uneducated \
+                share of the population seems to be declining. This data may be \
+                slightly prone to bias, as the data is from the population between \
+                the ages 15 and 64. One should keep this in mind when examining \
+                the data. The literacy rate is heavily influenced by the great \
+                share of the older generation, who have never had proper education, \
+                as can be inferred from the line graph. With educational attainment \
+                rising within the younger generation, literacy will eventually \
+                gradually rise.');
   tableOfContents.select('#contents')
                  .append('li')
                  .attr('class', 'section')
