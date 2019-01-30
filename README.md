@@ -23,7 +23,7 @@ This folder contains the following:
 
 ## Acknowledgements
 The content of the site was based on [this](https://ourworldindata.org/global-rise-of-education) investigative piece by Max Roser and Esteban Ortiz-Ospina. The data used for the visualisation can be found on the [UNESCO site](http://data.uis.unesco.org/index.aspx?queryid=166&lang=en) and on the site accompanying [this](https://econpapers.repec.org/article/eeedeveco/v_3a122_3ay_3a2016_3ai_3ac_3ap_3a147-169.htm) research report by Lee and Lee (2016). The data can be found [here](http://www.barrolee.com/Lee_Lee_LRdata_dn.htm).  
-To make the data maps, I used the [Datamaps repository](http://datamaps.github.io) from GitHub. The slider was made using [this block](https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518) by John Walley.
+To make the data maps, I used the [Datamaps repository](http://datamaps.github.io) from GitHub. The slider was made using [John Walley's](https://github.com/johnwalley/d3-simple-slider) code.
 
 
 ## Copyright
