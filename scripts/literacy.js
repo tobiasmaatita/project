@@ -2,7 +2,8 @@
     Student No.: 10730109
 
     Module containing the scripts to make a linechart depicting the worldwide
-    literacy rate throughout the past two centuries. Contains several functions:
+    literacy rate throughout the past two centuries.
+    Contains several functions:
 
     linechart: make the linechart. Calls all other functions in this module.
     lineScales: make the scales for the linechart.
@@ -244,7 +245,7 @@ function dots(lineWorld, years, dataDict, lineTip, scales) {
     years -- an array holding the years of which there is data.
     dataDict -- a JSON object holding the data on literacy.
     lineTip -- a tooltip object.
-    scales -- an object holding the scales of the linechart. 
+    scales -- an object holding the scales of the linechart.
 */
 
   // preprocess data to use for dots
