@@ -5,7 +5,7 @@ This document states the design of my final project.
 ## Data
 The data I will be using can be found inside the [data](https://github.com/tobiasmaatita/project/tree/master/Data) folder. For now, I will only be using the information on [worldwide education attainment](https://github.com/tobiasmaatita/project/blob/master/Data/education_attainment.csv), on [the worldwide literacy rate](https://github.com/tobiasmaatita/project/blob/master/Data/literate_and_illiterate_world_population.csv) and on [the literacy rate by country](https://github.com/tobiasmaatita/project/blob/master/Data/literacy_rate_by_country.csv). The data in these two datasets is clean to use it, I will convert the .csv-files to .json-files using the converter.py, which can be found in the [scripts](https://github.com/tobiasmaatita/project/tree/master/scripts) folder.
 
-The resulting .json-file looks like such:
+Here is an excerpt of the resulting JSON file:
 ```
 "Australia": {
 
