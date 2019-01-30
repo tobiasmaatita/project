@@ -22,7 +22,6 @@ function literacyMap(dataLiteracyCountry) {
     Arguments:
     dataLiteracyCountry -- JSON object holding the data on literacy per country.
 */
-
   var colors = d5.schemeBrBG[10];
   var mapLiteracy = new Datamap({
     scope: 'world',
@@ -396,7 +395,6 @@ function colorFill(data, id, year) {
     Outputs the new fill color, which is either grey for 'no data' or one of
     the colors in the colorscheme.
 */
-
   var info = data[id];
   var colors = d5.schemeRdYlGn[7];
 
@@ -422,7 +420,6 @@ function updateMap(dataDict, sliderTime) {
 
     Outputs an object sliderTime, which can be used to extract the current year.
 */
-
   var year = sliderTime.value();
   d5.select('#figureThree')
     .selectAll('path')
