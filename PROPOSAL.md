@@ -10,7 +10,7 @@ Aspects that I would like to show are, for example, the percentage of people who
 
 
 ### Solution
-I will show the worldwide development of access to education over a certain period of time *(needed: specific period)*
+I will show the worldwide development of access to education over a certain period of time *(needed: specific period)*. 
 
 
 #### Layout
